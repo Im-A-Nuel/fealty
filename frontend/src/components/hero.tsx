@@ -65,7 +65,7 @@ export default function Hero() {
           <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
             <a
               href="#mechanism"
-              className="inline-flex min-h-11 items-center justify-center rounded-full bg-gold px-7 text-sm font-semibold text-background transition-[box-shadow,transform] duration-200 ease-out hover:bg-goldbright active:scale-95"
+              className="btn-sheen inline-flex min-h-11 items-center justify-center rounded-full bg-gold px-7 text-sm font-semibold text-background transition-[box-shadow,transform] duration-200 ease-out hover:bg-goldbright active:scale-95"
             >
               See the mechanism
             </a>

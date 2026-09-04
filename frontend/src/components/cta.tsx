@@ -17,7 +17,7 @@ export default function Cta() {
         <Reveal delay={140}>
           <Link
             href="/onboarding"
-            className="mt-10 inline-flex min-h-11 items-center justify-center rounded-full bg-gold px-8 text-sm font-semibold text-background transition-[box-shadow,transform] duration-200 ease-out hover:bg-goldbright active:scale-95"
+            className="btn-sheen mt-10 inline-flex min-h-11 items-center justify-center rounded-full bg-gold px-8 text-sm font-semibold text-background transition-[box-shadow,transform] duration-200 ease-out hover:bg-goldbright active:scale-95"
           >
             Create a passkey identity
           </Link>

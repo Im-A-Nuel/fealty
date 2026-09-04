@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Archivo, Inter } from "next/font/google";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
+import ScrollProgress from "@/components/scroll-progress";
+import { ToastProvider } from "@/components/toast";
 import "./globals.css";
 
 const display = Archivo({
@@ -42,9 +44,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${display.variable} ${sans.variable} grain antialiased`}>
-        <Navbar />
-        {children}
-        <Footer />
+        <ToastProvider>
+          <ScrollProgress />
+          <Navbar />
+          {children}
+          <Footer />
+        </ToastProvider>
       </body>
     </html>
   );

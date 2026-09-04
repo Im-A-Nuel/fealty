@@ -56,7 +56,7 @@ export default function Navbar() {
           ))}
           <Link
             href="/onboarding"
-            className="inline-flex min-h-11 items-center rounded-full bg-gold px-5 text-sm font-semibold text-background transition-[box-shadow,transform] duration-200 ease-out hover:bg-goldbright active:scale-95"
+            className="btn-sheen inline-flex min-h-11 items-center rounded-full bg-gold px-5 text-sm font-semibold text-background transition-[box-shadow,transform] duration-200 ease-out hover:bg-goldbright active:scale-95"
           >
             Create identity
           </Link>
@@ -106,7 +106,7 @@ export default function Navbar() {
             ))}
             <Link
               href="/onboarding"
-              className="mt-2 inline-flex min-h-11 items-center justify-center rounded-full bg-gold px-5 text-sm font-semibold text-background"
+              className="btn-sheen mt-2 inline-flex min-h-11 items-center justify-center rounded-full bg-gold px-5 text-sm font-semibold text-background"
             >
               Create identity
             </Link>

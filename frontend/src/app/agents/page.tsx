@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import DemoBadge from "@/components/demo-badge";
 import FingerprintSeal from "@/components/fingerprint-seal";
 import { Reveal } from "@/components/reveal";
+import SpotlightCard from "@/components/spotlight-card";
 import { fetchAgents, isBackendConnected, type Agent } from "@/lib/api";
 import { demoAgents } from "@/lib/demo";
 
@@ -90,21 +91,23 @@ export default function AgentsPage() {
             <Reveal key={agent.id} delay={i * 90}>
               <Link
                 href={`/agents/${agent.agent_id_onchain}`}
-                className="group flex flex-col rounded-3xl border border-line bg-surface p-6 transition-[transform,border-color] duration-200 ease-out hover:-translate-y-1 hover:border-gold/60"
+                className="group block rounded-3xl border border-line bg-surface transition-[transform,border-color] duration-200 ease-out hover:-translate-y-1 hover:border-gold/60"
               >
-                <div className="flex items-start justify-between">
-                  <div className="w-16">
-                    <FingerprintSeal />
+                <SpotlightCard className="flex flex-col rounded-3xl p-6">
+                  <div className="flex items-start justify-between">
+                    <div className="w-16">
+                      <FingerprintSeal />
+                    </div>
+                    <span className="rounded-full border border-line px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-muted">
+                      {agent.content.length} verified
+                    </span>
                   </div>
-                  <span className="rounded-full border border-line px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-muted">
-                    {agent.content.length} verified
-                  </span>
-                </div>
-                <p className="mt-5 font-mono text-xs text-goldbright">#{agent.agent_id_onchain}</p>
-                <h2 className="mt-1 font-display text-xl font-black uppercase tracking-tight text-ink group-hover:text-goldbright">
-                  {agent.display_name ?? "Unnamed agent"}
-                </h2>
-                <p className="mt-2 truncate font-mono text-xs text-muted">{agent.eoa_address}</p>
+                  <p className="mt-5 font-mono text-xs text-goldbright">#{agent.agent_id_onchain}</p>
+                  <h2 className="mt-1 font-display text-xl font-black uppercase tracking-tight text-ink group-hover:text-goldbright">
+                    {agent.display_name ?? "Unnamed agent"}
+                  </h2>
+                  <p className="mt-2 truncate font-mono text-xs text-muted">{agent.eoa_address}</p>
+                </SpotlightCard>
               </Link>
             </Reveal>
           ))}

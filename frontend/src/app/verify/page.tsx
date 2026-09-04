@@ -6,6 +6,7 @@ import DemoBadge from "@/components/demo-badge";
 import FingerprintSeal from "@/components/fingerprint-seal";
 import PhashGrid from "@/components/phash-grid";
 import { useReducedMotion } from "@/components/reveal";
+import { useToast } from "@/components/toast";
 import { isBackendConnected, verifyFile, type VerificationResult } from "@/lib/api";
 import { delay, demoVerification } from "@/lib/demo";
 import { cn } from "@/lib/utils";
@@ -54,20 +55,23 @@ function CountUp({ value, duration = 700 }: { value: number; duration?: number }
 export default function VerifyPage() {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const reduced = useReducedMotion();
+  const toast = useToast();
   const [dragOver, setDragOver] = useState(false);
   const [state, setState] = useState<State>({ kind: "idle" });
 
   const acceptFile = useCallback((file: File) => {
     if (!file.type.startsWith("image/")) {
       setState({ kind: "error", message: "Only image files are supported.", file: null, url: null });
+      toast({ variant: "error", title: "Unsupported file", message: "Only images are supported." });
       return;
     }
     if (file.size > MAX_SIZE) {
       setState({ kind: "error", message: "File is larger than 10MB.", file: null, url: null });
+      toast({ variant: "error", title: "File too large", message: "Keep it under 10MB." });
       return;
     }
     setState({ kind: "preview", file, url: URL.createObjectURL(file) });
-  }, []);
+  }, [toast]);
 
   const onDrop = useCallback(
     (e: React.DragEvent) => {
@@ -84,13 +88,23 @@ export default function VerifyPage() {
     const { file, url } = state;
     setState({ kind: "verifying", file, url });
     try {
+      let result: VerificationResult;
       if (!isBackendConnected()) {
         await delay(1200);
-        setState({ kind: "done", result: demoVerification, file, url });
-        return;
+        result = demoVerification;
+      } else {
+        result = await verifyFile(file);
       }
-      const result = await verifyFile(file);
       setState({ kind: "done", result, file, url });
+      if (result.verified) {
+        toast({
+          variant: "success",
+          title: "Verified",
+          message: `Traces to agent #${result.agent_id_onchain}.`,
+        });
+      } else {
+        toast({ variant: "info", title: "No match", message: "No registered content matched." });
+      }
     } catch (err) {
       setState({
         kind: "error",
@@ -98,8 +112,13 @@ export default function VerifyPage() {
         file,
         url,
       });
+      toast({
+        variant: "error",
+        title: "Verification failed",
+        message: err instanceof Error ? err.message : "Try again.",
+      });
     }
-  }, [state]);
+  }, [state, toast]);
 
   function clearFile() {
     if (
@@ -201,7 +220,7 @@ export default function VerifyPage() {
               type="button"
               onClick={runVerify}
               disabled={state.kind === "verifying"}
-              className="mt-6 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-gold px-7 text-sm font-semibold text-background transition-[box-shadow,transform] duration-200 ease-out hover:bg-goldbright active:scale-95 disabled:pointer-events-none disabled:opacity-70"
+              className="btn-sheen mt-6 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-gold px-7 text-sm font-semibold text-background transition-[box-shadow,transform] duration-200 ease-out hover:bg-goldbright active:scale-95 disabled:pointer-events-none disabled:opacity-70"
             >
               {state.kind === "verifying" ? (
                 <>
@@ -237,7 +256,7 @@ export default function VerifyPage() {
                     ? setState({ kind: "preview", file: state.file, url: state.url ?? "" })
                     : setState({ kind: "idle" })
                 }
-                className="inline-flex min-h-11 items-center justify-center rounded-full bg-gold px-6 text-sm font-semibold text-background transition-[box-shadow,transform] duration-200 ease-out hover:bg-goldbright active:scale-95"
+                className="btn-sheen inline-flex min-h-11 items-center justify-center rounded-full bg-gold px-6 text-sm font-semibold text-background transition-[box-shadow,transform] duration-200 ease-out hover:bg-goldbright active:scale-95"
               >
                 Try again
               </button>
@@ -343,7 +362,7 @@ export default function VerifyPage() {
               initial={reduced ? false : { opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4 }}
-              className="mt-8 inline-flex min-h-11 items-center justify-center rounded-full bg-gold px-7 text-sm font-semibold text-background transition-[box-shadow,transform] duration-200 ease-out hover:bg-goldbright active:scale-95"
+              className="btn-sheen mt-8 inline-flex min-h-11 items-center justify-center rounded-full bg-gold px-7 text-sm font-semibold text-background transition-[box-shadow,transform] duration-200 ease-out hover:bg-goldbright active:scale-95"
             >
               Verify another file
             </motion.button>

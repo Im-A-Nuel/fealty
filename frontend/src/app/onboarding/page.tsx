@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import ConfirmDialog from "@/components/confirm-dialog";
 import FingerprintSeal from "@/components/fingerprint-seal";
 import { useReducedMotion } from "@/components/reveal";
+import { useToast } from "@/components/toast";
 import { delay } from "@/lib/demo";
 import { cn } from "@/lib/utils";
 
@@ -89,10 +91,12 @@ function StepActions({
 
 export default function OnboardingPage() {
   const reduced = useReducedMotion();
+  const toast = useToast();
   const [step, setStep] = useState<Step>("passkey");
   const [busy, setBusy] = useState(false);
   const [deriving, setDeriving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const [eoa, setEoa] = useState<string | null>(null);
 
   async function createPasskey() {
@@ -107,8 +111,14 @@ export default function OnboardingPage() {
       setDeriving(true);
       await delay(900);
       setDeriving(false);
+      toast({
+        variant: "success",
+        title: "Passkey created",
+        message: "Address derived from your passkey.",
+      });
     } catch {
       setError("Passkey creation was cancelled or failed. Try again.");
+      toast({ variant: "error", title: "Passkey creation failed", message: "Try again." });
     } finally {
       setBusy(false);
     }
@@ -122,8 +132,14 @@ export default function OnboardingPage() {
     try {
       await delay(1100);
       setStep("done");
+      toast({
+        variant: "success",
+        title: "Identity registered",
+        message: `Agent #${DEMO_AGENT_ID} is now on Monad testnet.`,
+      });
     } catch {
       setError("Registration failed. The transaction did not confirm.");
+      toast({ variant: "error", title: "Registration failed", message: "Try again." });
     } finally {
       setBusy(false);
     }
@@ -226,7 +242,7 @@ export default function OnboardingPage() {
                     type="button"
                     onClick={createPasskey}
                     disabled={busy}
-                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-gold px-7 text-sm font-semibold text-background transition-[box-shadow,transform] duration-200 ease-out hover:bg-goldbright active:scale-95 disabled:pointer-events-none disabled:opacity-70"
+                    className="btn-sheen inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-gold px-7 text-sm font-semibold text-background transition-[box-shadow,transform] duration-200 ease-out hover:bg-goldbright active:scale-95 disabled:pointer-events-none disabled:opacity-70"
                   >
                     {busy ? (
                       <>
@@ -279,7 +295,7 @@ export default function OnboardingPage() {
                     <button
                       type="button"
                       onClick={() => setStep("register")}
-                      className="inline-flex min-h-11 items-center justify-center rounded-full bg-gold px-7 text-sm font-semibold text-background transition-[box-shadow,transform] duration-200 ease-out hover:bg-goldbright active:scale-95"
+                      className="btn-sheen inline-flex min-h-11 items-center justify-center rounded-full bg-gold px-7 text-sm font-semibold text-background transition-[box-shadow,transform] duration-200 ease-out hover:bg-goldbright active:scale-95"
                     >
                       Continue
                     </button>
@@ -328,9 +344,9 @@ export default function OnboardingPage() {
                 <StepActions onBack={goBack} backDisabled={busy}>
                   <button
                     type="button"
-                    onClick={registerIdentity}
+                    onClick={() => setConfirmOpen(true)}
                     disabled={busy}
-                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-gold px-7 text-sm font-semibold text-background transition-[box-shadow,transform] duration-200 ease-out hover:bg-goldbright active:scale-95 disabled:pointer-events-none disabled:opacity-70"
+                    className="btn-sheen inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-gold px-7 text-sm font-semibold text-background transition-[box-shadow,transform] duration-200 ease-out hover:bg-goldbright active:scale-95 disabled:pointer-events-none disabled:opacity-70"
                   >
                     {busy ? (
                       <>
@@ -374,7 +390,7 @@ export default function OnboardingPage() {
                 >
                   <Link
                     href={`/agents/${DEMO_AGENT_ID}`}
-                    className="inline-flex min-h-11 items-center justify-center rounded-full bg-gold px-7 text-sm font-semibold text-background transition-[box-shadow,transform] duration-200 ease-out hover:bg-goldbright active:scale-95"
+                    className="btn-sheen inline-flex min-h-11 items-center justify-center rounded-full bg-gold px-7 text-sm font-semibold text-background transition-[box-shadow,transform] duration-200 ease-out hover:bg-goldbright active:scale-95"
                   >
                     View agent profile
                   </Link>
@@ -391,6 +407,40 @@ export default function OnboardingPage() {
           </motion.div>
         </AnimatePresence>
       </div>
+
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Broadcast registration?"
+        labelledBy="confirm-register-title"
+        confirmLabel="Confirm & broadcast"
+        busy={busy}
+        onConfirm={() => {
+          setConfirmOpen(false);
+          void registerIdentity();
+        }}
+        onCancel={() => setConfirmOpen(false)}
+      >
+        <h3 id="confirm-register-title" className="sr-only">
+          Broadcast registration?
+        </h3>
+        <div className="space-y-3">
+          <div className="flex items-center justify-between gap-4 rounded-xl border border-line bg-surface2 px-4 py-3">
+            <p className="text-[11px] font-medium uppercase tracking-widest text-muted">address</p>
+            <p className="font-mono text-sm text-ink">{eoa}</p>
+          </div>
+          <div className="flex items-center justify-between gap-4 rounded-xl border border-line bg-surface2 px-4 py-3">
+            <p className="text-[11px] font-medium uppercase tracking-widest text-muted">network</p>
+            <p className="text-sm font-medium text-ink">Monad testnet</p>
+          </div>
+          <div className="flex items-center justify-between gap-4 rounded-xl border border-line bg-surface2 px-4 py-3">
+            <p className="text-[11px] font-medium uppercase tracking-widest text-muted">agentId</p>
+            <p className="font-mono text-sm text-goldbright">{DEMO_AGENT_ID}</p>
+          </div>
+        </div>
+        <p className="mt-4 text-xs leading-relaxed text-muted">
+          This mints the agent identity onchain. The transaction cannot be undone.
+        </p>
+      </ConfirmDialog>
     </main>
   );
 }
