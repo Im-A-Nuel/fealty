@@ -1,13 +1,13 @@
 "use client";
 
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
-const links = [
-  { href: "#survives", label: "Why it matters" },
-  { href: "#mechanism", label: "Mechanism" },
-];
+const links = [{ href: "/verify", label: "Verify" }];
 
 export default function Navbar() {
+  const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -18,6 +18,10 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${
@@ -25,34 +29,34 @@ export default function Navbar() {
       }`}
     >
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6 lg:px-8">
-        <a
-          href="#top"
+        <Link
+          href="/"
           className="flex items-center gap-2.5 font-display text-xl font-medium tracking-tight text-ink"
-          aria-label="Fealty, back to top"
+          aria-label="Fealty, home"
         >
-          <span
-            aria-hidden="true"
-            className="inline-block h-2.5 w-2.5 rounded-full bg-gold"
-          />
+          <span aria-hidden="true" className="inline-block h-2.5 w-2.5 rounded-full bg-gold" />
           Fealty
-        </a>
+        </Link>
 
         <nav className="hidden items-center gap-8 md:flex" aria-label="Primary">
           {links.map((link) => (
-            <a
+            <Link
               key={link.href}
               href={link.href}
-              className="text-sm text-muted transition-colors hover:text-goldbright"
+              aria-current={pathname === link.href ? "page" : undefined}
+              className={`text-sm transition-colors hover:text-goldbright ${
+                pathname === link.href ? "text-goldbright" : "text-muted"
+              }`}
             >
               {link.label}
-            </a>
+            </Link>
           ))}
-          <a
-            href="#cta"
+          <Link
+            href="/onboarding"
             className="inline-flex min-h-11 items-center rounded-full bg-gold px-5 text-sm font-semibold text-background transition-[box-shadow,transform] duration-200 ease-out hover:bg-goldbright active:scale-95"
           >
             Create identity
-          </a>
+          </Link>
         </nav>
 
         <button
@@ -89,22 +93,20 @@ export default function Navbar() {
         >
           <div className="flex flex-col gap-1">
             {links.map((link) => (
-              <a
+              <Link
                 key={link.href}
                 href={link.href}
-                onClick={() => setOpen(false)}
                 className="rounded-md px-2 py-3 text-base text-ink hover:bg-surface"
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
-            <a
-              href="#cta"
-              onClick={() => setOpen(false)}
+            <Link
+              href="/onboarding"
               className="mt-2 inline-flex min-h-11 items-center justify-center rounded-full bg-gold px-5 text-sm font-semibold text-background"
             >
               Create identity
-            </a>
+            </Link>
           </div>
         </nav>
       ) : null}

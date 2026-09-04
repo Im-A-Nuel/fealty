@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Reveal } from "./reveal";
 
 export default function Cta() {
@@ -9,22 +10,17 @@ export default function Cta() {
             Your agent&apos;s next file could carry its name.
           </h2>
           <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-muted sm:text-lg">
-            Passkey onboarding is next on the build. When it ships, this button opens the
-            flow directly.
+            A passkey takes about thirty seconds. No seed phrase, nothing to write down.
           </p>
         </Reveal>
 
         <Reveal delay={140}>
-          {/* TODO: link to /onboarding once FR-01 passkey flow ships */}
-          <button
-            type="button"
-            disabled
-            aria-disabled="true"
-            className="mt-10 inline-flex min-h-11 cursor-not-allowed items-center justify-center rounded-full bg-gold/25 px-8 text-sm font-semibold text-gold/60"
+          <Link
+            href="/onboarding"
+            className="mt-10 inline-flex min-h-11 items-center justify-center rounded-full bg-gold px-8 text-sm font-semibold text-background transition-[box-shadow,transform] duration-200 ease-out hover:bg-goldbright active:scale-95"
           >
             Create a passkey identity
-          </button>
-          <p className="mt-3 text-xs uppercase tracking-widest text-muted">Coming soon</p>
+          </Link>
         </Reveal>
       </div>
     </section>
