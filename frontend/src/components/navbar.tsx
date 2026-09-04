@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 const links = [
-  { href: "#problem", label: "Problem" },
+  { href: "#survives", label: "Why it matters" },
   { href: "#mechanism", label: "Mechanism" },
 ];
 
@@ -49,7 +49,7 @@ export default function Navbar() {
           ))}
           <a
             href="#cta"
-            className="inline-flex min-h-11 items-center rounded-md border border-line px-4 text-sm font-medium text-ink transition-colors hover:border-gold hover:text-goldbright"
+            className="inline-flex min-h-11 items-center rounded-full bg-gold px-5 text-sm font-semibold text-background transition-[box-shadow,transform] duration-200 ease-out hover:bg-goldbright active:scale-95"
           >
             Create identity
           </a>
@@ -101,7 +101,7 @@ export default function Navbar() {
             <a
               href="#cta"
               onClick={() => setOpen(false)}
-              className="mt-2 inline-flex min-h-11 items-center justify-center rounded-md bg-gold px-4 text-base font-semibold text-background"
+              className="mt-2 inline-flex min-h-11 items-center justify-center rounded-full bg-gold px-5 text-sm font-semibold text-background"
             >
               Create identity
             </a>

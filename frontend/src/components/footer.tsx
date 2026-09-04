@@ -11,8 +11,8 @@ export default function Footer() {
         </div>
 
         <nav aria-label="Footer" className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">
-          <a href="#problem" className="text-muted transition-colors hover:text-goldbright">
-            Problem
+          <a href="#survives" className="text-muted transition-colors hover:text-goldbright">
+            Why it matters
           </a>
           <a href="#mechanism" className="text-muted transition-colors hover:text-goldbright">
             Mechanism

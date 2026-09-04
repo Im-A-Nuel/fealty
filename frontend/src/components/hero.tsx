@@ -1,13 +1,12 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import FingerprintSeal from "./fingerprint-seal";
+import Scatter from "./scatter";
 import { useReducedMotion } from "./reveal";
 
 export default function Hero() {
   const reduced = useReducedMotion();
-  const glowRef = useRef<HTMLDivElement | null>(null);
-  const sealRef = useRef<HTMLDivElement | null>(null);
+  const markRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (reduced) return;
@@ -16,11 +15,11 @@ export default function Hero() {
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
         const y = window.scrollY;
-        if (glowRef.current) {
-          glowRef.current.style.transform = `translate3d(0, ${y * 0.18}px, 0)`;
-        }
-        if (sealRef.current) {
-          sealRef.current.style.transform = `translate3d(0, ${y * 0.08}px, 0)`;
+        const mark = markRef.current;
+        if (mark) {
+          const scale = Math.max(0.94, 1 - y * 0.0003);
+          mark.style.transform = `translate3d(0, ${y * 0.35}px, 0) scale(${scale})`;
+          mark.style.opacity = String(Math.max(0, 1 - y * 0.0016));
         }
       });
     };
@@ -34,58 +33,59 @@ export default function Hero() {
   return (
     <header id="top" className="relative overflow-hidden">
       <div
-        ref={glowRef}
-        className="pointer-events-none absolute right-[-18%] top-[-10%] h-[720px] w-[720px] rounded-full will-change-transform"
-        style={{
-          background:
-            "radial-gradient(circle at center, rgba(201,162,39,0.16) 0%, rgba(201,162,39,0.05) 42%, transparent 68%)",
-        }}
+        ref={markRef}
         aria-hidden="true"
-      />
+        className="pointer-events-none absolute left-1/2 top-2 w-[200vw] -translate-x-1/2 select-none whitespace-nowrap text-center will-change-transform"
+      >
+        <span
+          className="font-display text-[24vw] font-black uppercase leading-[0.85] tracking-tight text-transparent"
+          style={{
+            backgroundImage:
+              "linear-gradient(180deg, rgba(230,195,79,0.5) 0%, rgba(201,162,39,0.16) 55%, rgba(201,162,39,0.05) 100%)",
+            WebkitBackgroundClip: "text",
+            backgroundClip: "text",
+          }}
+        >
+          FEALTY
+        </span>
+      </div>
 
-      <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-14 px-6 pt-28 pb-24 md:grid-cols-[1.15fr_0.85fr] md:pt-36 md:pb-32 lg:px-8">
-        <div className="max-w-xl">
-          <p className="mb-6 text-sm font-medium tracking-wide text-muted">
-            Passkey identity · Proof of origin · Monad
-          </p>
-
-          <h1 className="font-display text-5xl leading-[1.02] font-medium tracking-tightest text-ink sm:text-6xl lg:text-7xl">
-            Prove what your{" "}
-            <em className="text-goldbright not-italic">agent</em> made.
+      <div className="relative mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-10 px-6 pb-24 pt-32 md:grid-cols-[1.1fr_0.9fr] md:pt-40 md:pb-32 lg:px-8">
+        <div className="max-w-2xl">
+          <h1 className="font-display text-4xl font-black uppercase leading-[0.93] tracking-tight text-ink sm:text-6xl lg:text-7xl">
+            Prove what your agent made.
           </h1>
 
-          <p className="mt-7 text-lg leading-relaxed text-muted sm:text-xl">
+          <p className="mt-6 max-w-xl text-base leading-relaxed text-muted sm:text-lg">
             Fealty gives an AI agent a self-custodial identity from a passkey, then binds a
             perceptual fingerprint to everything it creates. Crop, compress, or re-encode a
             file: it still traces back to the agent that made it.
           </p>
 
-          <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+          <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
             <a
               href="#mechanism"
-              className="inline-flex min-h-11 items-center justify-center rounded-md bg-gold px-6 text-base font-semibold text-background transition-colors duration-200 hover:bg-goldbright"
+              className="inline-flex min-h-11 items-center justify-center rounded-full bg-gold px-7 text-sm font-semibold text-background transition-[box-shadow,transform] duration-200 ease-out hover:bg-goldbright active:scale-95"
             >
               See the mechanism
             </a>
             <a
-              href="#problem"
-              className="inline-flex min-h-11 items-center justify-center rounded-md border border-line px-6 text-base font-medium text-ink transition-colors duration-200 hover:border-gold hover:text-goldbright"
+              href="#survives"
+              className="btn-ring inline-flex min-h-11 items-center justify-center rounded-full px-7 text-sm font-medium text-ink transition-colors duration-200 hover:text-goldbright active:scale-95"
             >
-              Why provenance breaks
+              Why metadata dies
             </a>
           </div>
 
-          <p className="mt-10 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-muted">
-            <span>Mera passkey</span>
-            <span aria-hidden="true" className="h-1 w-1 rounded-full bg-gold" />
-            <span>Monad testnet</span>
-            <span aria-hidden="true" className="h-1 w-1 rounded-full bg-gold" />
-            <span>perceptual hash</span>
+          <p className="mt-10 flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-muted">
+            <span className="rounded-full border border-line px-3 py-1">Mera passkey</span>
+            <span className="rounded-full border border-line px-3 py-1">Monad testnet</span>
+            <span className="rounded-full border border-line px-3 py-1">perceptual hash</span>
           </p>
         </div>
 
-        <div ref={sealRef} className="relative mx-auto w-full max-w-[420px] will-change-transform">
-          <FingerprintSeal />
+        <div className="relative">
+          <Scatter />
         </div>
       </div>
     </header>

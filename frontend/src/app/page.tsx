@@ -1,7 +1,8 @@
 import Navbar from "@/components/navbar";
 import Hero from "@/components/hero";
-import Problem from "@/components/problem";
-import Mechanism from "@/components/mechanism";
+import Features from "@/components/features";
+import Survives from "@/components/survives";
+import Stack from "@/components/stack";
 import Cta from "@/components/cta";
 import Footer from "@/components/footer";
 
@@ -10,8 +11,9 @@ export default function Home() {
     <main className="min-h-screen">
       <Navbar />
       <Hero />
-      <Problem />
-      <Mechanism />
+      <Features />
+      <Survives />
+      <Stack />
       <Cta />
       <Footer />
     </main>

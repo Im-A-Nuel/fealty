@@ -3,14 +3,14 @@
 @tailwind utilities;
 
 :root {
-  --bg: #0b0a08;
-  --surface: #131110;
-  --surface-2: #1b1713;
+  --bg: #050505;
+  --surface: #101010;
+  --surface-2: #181818;
   --gold: #c9a227;
   --gold-bright: #e6c34f;
-  --ink: #f2ead9;
-  --muted: #a79f8e;
-  --line: #26211a;
+  --ink: #ededed;
+  --muted: #9a9a9a;
+  --line: #1f1f1f;
 }
 
 html {
@@ -64,13 +64,42 @@ body {
     }
   }
 
+  .btn-ring {
+    position: relative;
+  }
+
+  .btn-ring::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: conic-gradient(
+      from 140deg at 50% 50%,
+      rgba(230, 195, 79, 0.55) 0deg,
+      rgba(230, 195, 79, 0.08) 90deg,
+      rgba(230, 195, 79, 0.55) 180deg,
+      rgba(230, 195, 79, 0.08) 270deg,
+      rgba(230, 195, 79, 0.55) 360deg
+    );
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
   .grain::after {
     content: "";
     position: fixed;
     inset: 0;
     z-index: 60;
     pointer-events: none;
-    opacity: 0.05;
+    opacity: 0.04;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 }
