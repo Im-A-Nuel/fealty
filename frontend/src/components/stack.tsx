@@ -98,7 +98,7 @@ const css = `
   }
 
   .stack-carousel .swiper-slide {
-    width: 300px;
+    width: 280px;
     height: 400px;
   }
 
@@ -164,11 +164,11 @@ export default function Stack() {
         </Reveal>
 
         <Reveal delay={120}>
-          <div className="relative mx-auto mt-12 w-full max-w-5xl px-10 sm:px-16">
+          <div className="relative mx-auto mt-12 w-full max-w-6xl px-6 sm:px-12">
             <style>{css}</style>
 
             <Swiper
-              spaceBetween={28}
+              spaceBetween={20}
               autoplay={
                 reduced
                   ? false
@@ -183,10 +183,10 @@ export default function Stack() {
               centeredSlides={true}
               loop={true}
               coverflowEffect={{
-                rotate: 32,
+                rotate: 24,
                 stretch: 0,
-                depth: 110,
-                modifier: 1.15,
+                depth: 90,
+                modifier: 1,
                 slideShadows: false,
               }}
               pagination={{ clickable: true }}
