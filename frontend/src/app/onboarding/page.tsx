@@ -50,6 +50,43 @@ function Spinner() {
   );
 }
 
+function BackIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M19 12H5M11 18l-6-6 6-6" />
+    </svg>
+  );
+}
+
+function StepActions({
+  onBack,
+  backDisabled = false,
+  children,
+}: {
+  onBack?: () => void;
+  backDisabled?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="mt-8 flex items-center justify-between gap-4 border-t border-line pt-6">
+      {onBack ? (
+        <button
+          type="button"
+          onClick={onBack}
+          disabled={backDisabled}
+          className="btn-ring inline-flex min-h-11 items-center gap-1.5 rounded-full px-5 text-sm font-medium text-ink transition-colors hover:text-goldbright disabled:pointer-events-none disabled:opacity-50"
+        >
+          <BackIcon />
+          Back
+        </button>
+      ) : (
+        <span aria-hidden="true" />
+      )}
+      {children}
+    </div>
+  );
+}
+
 export default function OnboardingPage() {
   const reduced = useReducedMotion();
   const [step, setStep] = useState<Step>("passkey");
@@ -184,20 +221,22 @@ export default function OnboardingPage() {
                   </p>
                 ) : null}
 
-                <button
-                  type="button"
-                  onClick={createPasskey}
-                  disabled={busy}
-                  className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-gold px-7 text-sm font-semibold text-background transition-[box-shadow,transform] duration-200 ease-out hover:bg-goldbright active:scale-95 disabled:pointer-events-none disabled:opacity-70"
-                >
-                  {busy ? (
-                    <>
-                      <Spinner /> Waiting for your device…
-                    </>
-                  ) : (
-                    "Create passkey"
-                  )}
-                </button>
+                <StepActions>
+                  <button
+                    type="button"
+                    onClick={createPasskey}
+                    disabled={busy}
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-gold px-7 text-sm font-semibold text-background transition-[box-shadow,transform] duration-200 ease-out hover:bg-goldbright active:scale-95 disabled:pointer-events-none disabled:opacity-70"
+                  >
+                    {busy ? (
+                      <>
+                        <Spinner /> Waiting for your device…
+                      </>
+                    ) : (
+                      "Create passkey"
+                    )}
+                  </button>
+                </StepActions>
               </div>
             ) : null}
 
@@ -212,47 +251,40 @@ export default function OnboardingPage() {
                 </p>
 
                 {deriving ? (
-                  <div className="mt-6 flex items-center gap-3 rounded-xl border border-line bg-surface2 px-4 py-4" role="status">
+                  <div
+                    role="status"
+                    className="mt-6 flex items-center gap-3 rounded-xl border border-line bg-surface2 px-4 py-4"
+                  >
                     <Spinner />
                     <span className="text-sm text-muted">
                       Deriving address from your passkey…
                     </span>
                   </div>
                 ) : (
-                  <>
-                    <div className="mt-6 rounded-xl border border-line bg-surface2 px-4 py-4">
-                      <div className="flex items-center justify-between gap-4">
-                        <p className="text-[11px] font-medium uppercase tracking-widest text-muted">
-                          EOA address
-                        </p>
-                        <span className="shrink-0 rounded-full border border-gold/30 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-goldbright">
-                          demo
-                        </span>
-                      </div>
-                      <p className="mt-2 font-mono text-sm text-goldbright">{eoa}</p>
+                  <div className="mt-6 rounded-xl border border-line bg-surface2 px-4 py-4">
+                    <div className="flex items-center justify-between gap-4">
+                      <p className="text-[11px] font-medium uppercase tracking-widest text-muted">
+                        EOA address
+                      </p>
+                      <span className="shrink-0 rounded-full border border-gold/30 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-goldbright">
+                        demo
+                      </span>
                     </div>
+                    <p className="mt-2 font-mono text-sm text-goldbright">{eoa}</p>
+                  </div>
+                )}
 
+                <StepActions onBack={goBack} backDisabled={busy}>
+                  {deriving ? null : (
                     <button
                       type="button"
                       onClick={() => setStep("register")}
-                      className="mt-6 inline-flex min-h-11 items-center justify-center rounded-full bg-gold px-7 text-sm font-semibold text-background transition-[box-shadow,transform] duration-200 ease-out hover:bg-goldbright active:scale-95"
+                      className="inline-flex min-h-11 items-center justify-center rounded-full bg-gold px-7 text-sm font-semibold text-background transition-[box-shadow,transform] duration-200 ease-out hover:bg-goldbright active:scale-95"
                     >
                       Continue
                     </button>
-                  </>
-                )}
-
-                <button
-                  type="button"
-                  onClick={goBack}
-                  disabled={deriving}
-                  className="mt-4 inline-flex min-h-11 items-center gap-1.5 text-sm font-medium text-muted transition-colors hover:text-goldbright disabled:pointer-events-none disabled:opacity-50"
-                >
-                  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <path d="M19 12H5M11 18l-6-6 6-6" />
-                  </svg>
-                  Back
-                </button>
+                  )}
+                </StepActions>
               </div>
             ) : null}
 
@@ -293,32 +325,22 @@ export default function OnboardingPage() {
                   </p>
                 ) : null}
 
-                <button
-                  type="button"
-                  onClick={registerIdentity}
-                  disabled={busy}
-                  className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-gold px-7 text-sm font-semibold text-background transition-[box-shadow,transform] duration-200 ease-out hover:bg-goldbright active:scale-95 disabled:pointer-events-none disabled:opacity-70"
-                >
-                  {busy ? (
-                    <>
-                      <Spinner /> Broadcasting…
-                    </>
-                  ) : (
-                    "Register identity"
-                  )}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={goBack}
-                  disabled={busy}
-                  className="mt-4 inline-flex min-h-11 items-center gap-1.5 text-sm font-medium text-muted transition-colors hover:text-goldbright disabled:pointer-events-none disabled:opacity-50"
-                >
-                  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <path d="M19 12H5M11 18l-6-6 6-6" />
-                  </svg>
-                  Back
-                </button>
+                <StepActions onBack={goBack} backDisabled={busy}>
+                  <button
+                    type="button"
+                    onClick={registerIdentity}
+                    disabled={busy}
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-gold px-7 text-sm font-semibold text-background transition-[box-shadow,transform] duration-200 ease-out hover:bg-goldbright active:scale-95 disabled:pointer-events-none disabled:opacity-70"
+                  >
+                    {busy ? (
+                      <>
+                        <Spinner /> Broadcasting…
+                      </>
+                    ) : (
+                      "Register identity"
+                    )}
+                  </button>
+                </StepActions>
               </div>
             ) : null}
 
