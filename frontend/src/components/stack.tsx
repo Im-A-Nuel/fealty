@@ -1,30 +1,8 @@
 "use client";
 
-import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
-import {
-  Autoplay,
-  EffectCoverflow,
-  Navigation,
-  Pagination,
-} from "swiper/modules";
-import { Swiper, SwiperSlide } from "swiper/react";
-import "swiper/css/effect-coverflow";
-import "swiper/css/pagination";
-import "swiper/css/navigation";
-import "swiper/css";
-
-import { cn } from "@/lib/utils";
+import StackCarousel from "./stack-carousel";
 import PhashGrid from "./phash-grid";
-import { Reveal, useReducedMotion } from "./reveal";
-
-function SpecRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-center justify-between gap-4 border-t border-line pt-3">
-      <p className="text-[11px] font-medium uppercase tracking-widest text-muted">{label}</p>
-      <p className="truncate text-sm font-medium text-ink">{value}</p>
-    </div>
-  );
-}
+import { Reveal } from "./reveal";
 
 const stack = [
   {
@@ -90,72 +68,16 @@ const stack = [
   },
 ];
 
-const css = `
-  .stack-carousel {
-    width: 100%;
-    height: 460px;
-    padding-bottom: 46px !important;
-  }
-
-  .stack-carousel .swiper-slide {
-    height: 400px;
-    z-index: 1;
-  }
-
-  .stack-carousel .swiper-slide-active {
-    z-index: 5 !important;
-  }
-
-  .stack-carousel .swiper-pagination-bullet {
-    width: 6px;
-    height: 6px;
-    background-color: var(--gold) !important;
-    opacity: 0.3;
-  }
-
-  .stack-carousel .swiper-pagination-bullet-active {
-    opacity: 1;
-  }
-
-  .stack-carousel .swiper-button-next,
-  .stack-carousel .swiper-button-prev {
-    top: 44%;
-    display: none;
-    z-index: 10;
-    width: 44px;
-    height: 44px;
-    border-radius: 9999px;
-    background-color: var(--surface-2);
-    border: 1px solid var(--line);
-    color: var(--gold);
-    transition: border-color 0.2s ease;
-    cursor: pointer;
-  }
-
-  .stack-carousel .swiper-button-next:hover,
-  .stack-carousel .swiper-button-prev:hover {
-    border-color: var(--gold);
-  }
-
-  .stack-carousel .swiper-button-prev {
-    left: 0;
-  }
-
-  .stack-carousel .swiper-button-next {
-    right: 0;
-  }
-
-  @media (min-width: 768px) {
-    .stack-carousel .swiper-button-next,
-    .stack-carousel .swiper-button-prev {
-      display: flex;
-    }
-  }
-`;
+function SpecRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between gap-4 border-t border-line pt-3">
+      <p className="text-[11px] font-medium uppercase tracking-widest text-muted">{label}</p>
+      <p className="truncate text-sm font-medium text-ink">{value}</p>
+    </div>
+  );
+}
 
 export default function Stack() {
-  const reduced = useReducedMotion();
-
   return (
     <section id="stack" className="scroll-mt-24 border-t border-line">
       <div className="mx-auto max-w-6xl px-6 py-24 lg:px-8 md:py-32">
@@ -170,78 +92,8 @@ export default function Stack() {
         </Reveal>
 
         <Reveal delay={120}>
-          <div className="relative mx-auto mt-12 w-full max-w-[760px]">
-            <style>{css}</style>
-
-            <Swiper
-              spaceBetween={16}
-              breakpoints={{
-                640: { slidesPerView: 1.8, spaceBetween: 20 },
-                1024: { slidesPerView: 2.3, spaceBetween: 20 },
-              }}
-              autoplay={
-                reduced
-                  ? false
-                  : {
-                      delay: 2600,
-                      disableOnInteraction: true,
-                    }
-              }
-              effect="coverflow"
-              grabCursor={true}
-              slidesPerView={1.35}
-              centeredSlides={true}
-              loop={true}
-              watchSlidesProgress={true}
-              coverflowEffect={{
-                rotate: 20,
-                stretch: 24,
-                depth: 70,
-                modifier: 1,
-                slideShadows: false,
-              }}
-              pagination={{ clickable: true }}
-              navigation={{
-                nextEl: ".swiper-button-next",
-                prevEl: ".swiper-button-prev",
-              }}
-              className="stack-carousel"
-              modules={[EffectCoverflow, Autoplay, Pagination, Navigation]}
-            >
-              {stack.map((item) => (
-                <SwiperSlide key={item.name}>
-                  <div
-                    className={cn(
-                      "flex h-full flex-col rounded-3xl border border-line p-6",
-                      "bg-[linear-gradient(180deg,#101010_0%,#181818_100%)]",
-                      "shadow-[0_16px_48px_rgba(0,0,0,0.4)]",
-                    )}
-                  >
-                    <p className="font-display text-xl font-black uppercase tracking-tight text-gold">
-                      {item.name}
-                    </p>
-                    <p className="mt-1 text-[11px] font-semibold uppercase tracking-widest text-muted">
-                      {item.role}
-                    </p>
-
-                    <div className="my-6 flex-1">{item.visual}</div>
-
-                    <p className="border-t border-line pt-4 text-sm leading-relaxed text-muted">
-                      {item.body}
-                    </p>
-                  </div>
-                </SwiperSlide>
-              ))}
-
-              <div>
-                <div className="swiper-button-next after:hidden">
-                  <ChevronRightIcon className="h-5 w-5" />
-                </div>
-                <div className="swiper-button-prev after:hidden">
-                  <ChevronLeftIcon className="h-5 w-5" />
-                </div>
-              </div>
-            </Swiper>
+          <div className="mx-auto mt-12 w-full max-w-3xl">
+            <StackCarousel items={stack} />
           </div>
         </Reveal>
       </div>
