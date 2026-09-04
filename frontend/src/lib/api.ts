@@ -35,6 +35,12 @@ export async function fetchAgent(agentId: string): Promise<Agent> {
   return res.json();
 }
 
+export async function fetchAgents(): Promise<Agent[]> {
+  const res = await fetch(`${API_BASE}/agents`);
+  if (!res.ok) throw new Error(`Agent list failed: HTTP ${res.status}`);
+  return res.json();
+}
+
 export async function verifyFile(file: File): Promise<VerificationResult> {
   const form = new FormData();
   form.append("file", file);
