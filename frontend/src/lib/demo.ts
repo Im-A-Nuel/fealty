@@ -72,6 +72,7 @@ export const demoVerification: VerificationResult = {
   agent_id_onchain: 42,
   content_id_onchain: 456,
   hamming_distance: 4,
+  phash: "8f3a1c2c21d",
 };
 
 export function delay(ms: number): Promise<void> {

@@ -1,8 +1,11 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import DemoBadge from "@/components/demo-badge";
 import FingerprintSeal from "@/components/fingerprint-seal";
+import PhashGrid from "@/components/phash-grid";
+import { useReducedMotion } from "@/components/reveal";
 import { isBackendConnected, verifyFile, type VerificationResult } from "@/lib/api";
 import { delay, demoVerification } from "@/lib/demo";
 import { cn } from "@/lib/utils";
@@ -25,8 +28,32 @@ function Spinner() {
   );
 }
 
+function CountUp({ value, duration = 700 }: { value: number; duration?: number }) {
+  const reduced = useReducedMotion();
+  const [display, setDisplay] = useState(reduced ? value : 0);
+
+  useEffect(() => {
+    if (reduced) {
+      setDisplay(value);
+      return;
+    }
+    let raf = 0;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const p = Math.min(1, (now - start) / duration);
+      setDisplay(Math.round(p * value));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [value, duration, reduced]);
+
+  return <span>{display}</span>;
+}
+
 export default function VerifyPage() {
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const reduced = useReducedMotion();
   const [dragOver, setDragOver] = useState(false);
   const [state, setState] = useState<State>({ kind: "idle" });
 
@@ -67,8 +94,7 @@ export default function VerifyPage() {
     } catch (err) {
       setState({
         kind: "error",
-        message:
-          err instanceof Error ? err.message : "Verification failed.",
+        message: err instanceof Error ? err.message : "Verification failed.",
         file,
         url,
       });
@@ -76,7 +102,12 @@ export default function VerifyPage() {
   }, [state]);
 
   function clearFile() {
-    if (state.kind === "preview" || state.kind === "verifying" || state.kind === "done" || state.kind === "error") {
+    if (
+      state.kind === "preview" ||
+      state.kind === "verifying" ||
+      state.kind === "done" ||
+      state.kind === "error"
+    ) {
       URL.revokeObjectURL(state.url ?? "");
     }
     setState({ kind: "idle" });
@@ -123,22 +154,37 @@ export default function VerifyPage() {
                 if (file) acceptFile(file);
               }}
             />
-            <span aria-hidden="true" className="flex h-12 w-12 items-center justify-center rounded-full border border-line">
+            <span
+              aria-hidden="true"
+              className={cn(
+                "flex h-12 w-12 items-center justify-center rounded-full border border-line transition-transform duration-200",
+                dragOver ? "-translate-y-1" : "",
+              )}
+            >
               <svg viewBox="0 0 24 24" className="h-5 w-5 text-gold" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 16V4M7 9l5-5 5 5" />
                 <path d="M4 17v2a1 1 0 001 1h14a1 1 0 001-1v-2" />
               </svg>
             </span>
-            <p className="mt-4 text-sm font-medium text-ink">Drop an image here, or click to browse</p>
+            <p className="mt-4 text-sm font-medium text-ink">
+              Drop an image here, or click to browse
+            </p>
             <p className="mt-1 text-xs text-muted">Image only, up to 10MB</p>
           </label>
         ) : null}
 
         {state.kind === "preview" || state.kind === "verifying" ? (
           <div>
-            <div className="overflow-hidden rounded-2xl border border-line">
+            <div className="relative overflow-hidden rounded-2xl border border-line">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={state.url} alt="Uploaded file preview" className="max-h-80 w-full object-contain bg-surface2" />
+              <img
+                src={state.url}
+                alt="Uploaded file preview"
+                className="max-h-80 w-full object-contain bg-surface2"
+              />
+              {state.kind === "verifying" ? (
+                <div className="scan-line" aria-hidden="true" />
+              ) : null}
             </div>
             <div className="mt-4 flex items-center justify-between gap-4">
               <p className="truncate text-sm text-muted">{state.file.name}</p>
@@ -173,7 +219,11 @@ export default function VerifyPage() {
             {state.url ? (
               <div className="overflow-hidden rounded-2xl border border-line">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={state.url} alt="Uploaded file preview" className="max-h-80 w-full object-contain bg-surface2" />
+                <img
+                  src={state.url}
+                  alt="Uploaded file preview"
+                  className="max-h-80 w-full object-contain bg-surface2"
+                />
               </div>
             ) : null}
             <p role="alert" className="mt-5 rounded-xl border border-line bg-surface2 px-4 py-3 text-sm text-ink">
@@ -182,7 +232,11 @@ export default function VerifyPage() {
             <div className="mt-5 flex flex-wrap gap-3">
               <button
                 type="button"
-                onClick={() => (state.file ? setState({ kind: "preview", file: state.file, url: state.url ?? "" }) : setState({ kind: "idle" }))}
+                onClick={() =>
+                  state.file
+                    ? setState({ kind: "preview", file: state.file, url: state.url ?? "" })
+                    : setState({ kind: "idle" })
+                }
                 className="inline-flex min-h-11 items-center justify-center rounded-full bg-gold px-6 text-sm font-semibold text-background transition-[box-shadow,transform] duration-200 ease-out hover:bg-goldbright active:scale-95"
               >
                 Try again
@@ -200,45 +254,99 @@ export default function VerifyPage() {
 
         {state.kind === "done" ? (
           <div className="text-center">
-            <div className="mx-auto w-28">
+            <motion.div
+              initial={reduced ? false : { scale: 0.7, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: "spring", stiffness: 240, damping: 20 }}
+              className="mx-auto w-28"
+            >
               <FingerprintSeal />
-            </div>
+            </motion.div>
+
             {!isBackendConnected() ? (
-              <div className="mt-4 flex justify-center">
+              <motion.div
+                initial={reduced ? false : { opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.15 }}
+                className="mt-4 flex justify-center"
+              >
                 <DemoBadge label="Demo result" />
-              </div>
+              </motion.div>
             ) : null}
+
             {state.result.verified ? (
               <>
-                <h2 className="mt-6 font-display text-3xl font-black uppercase tracking-tight text-ink">
+                <motion.h2
+                  initial={reduced ? false : { opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="mt-6 font-display text-3xl font-black uppercase tracking-tight text-ink"
+                >
                   Verified.
-                </h2>
-                <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted">
+                </motion.h2>
+                <motion.p
+                  initial={reduced ? false : { opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted"
+                >
                   This file traces back to agent{" "}
                   <span className="font-mono text-goldbright">#{state.result.agent_id_onchain}</span>{" "}
                   content{" "}
                   <span className="font-mono text-goldbright">#{state.result.content_id_onchain}</span>,
                   Hamming distance{" "}
-                  <span className="font-mono text-goldbright">{state.result.hamming_distance}</span>.
-                </p>
+                  <span className="font-mono text-goldbright">
+                    <CountUp value={state.result.hamming_distance ?? 0} />
+                  </span>
+                  .
+                </motion.p>
               </>
             ) : (
               <>
-                <h2 className="mt-6 font-display text-3xl font-black uppercase tracking-tight text-ink">
+                <motion.h2
+                  initial={reduced ? false : { opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="mt-6 font-display text-3xl font-black uppercase tracking-tight text-ink"
+                >
                   No match.
-                </h2>
-                <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted">
+                </motion.h2>
+                <motion.p
+                  initial={reduced ? false : { opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted"
+                >
                   No registered content matches this file closely enough.
-                </p>
+                </motion.p>
               </>
             )}
-            <button
+
+            <motion.div
+              initial={reduced ? false : { opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="mx-auto mt-6 max-w-xs rounded-xl border border-line bg-surface2 p-4 text-left"
+            >
+              <p className="text-[10px] font-medium uppercase tracking-widest text-muted">
+                perceptual hash
+              </p>
+              <PhashGrid seed={2} className="mt-3" />
+              <p className="mt-2 font-mono text-xs text-goldbright">
+                {state.result.phash ?? "n/a"}
+              </p>
+            </motion.div>
+
+            <motion.button
               type="button"
               onClick={clearFile}
+              initial={reduced ? false : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
               className="mt-8 inline-flex min-h-11 items-center justify-center rounded-full bg-gold px-7 text-sm font-semibold text-background transition-[box-shadow,transform] duration-200 ease-out hover:bg-goldbright active:scale-95"
             >
               Verify another file
-            </button>
+            </motion.button>
           </div>
         ) : null}
       </div>

@@ -64,6 +64,35 @@ body {
     }
   }
 
+  .scan-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold-bright), transparent);
+    box-shadow: 0 0 14px rgba(230, 195, 79, 0.55);
+    animation: scan 1.6s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  @keyframes scan {
+    0% {
+      top: 0;
+      opacity: 0;
+    }
+    10% {
+      opacity: 1;
+    }
+    90% {
+      opacity: 1;
+    }
+    100% {
+      top: 100%;
+      opacity: 0;
+    }
+  }
+
   .btn-ring {
     position: relative;
   }

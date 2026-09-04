@@ -22,6 +22,7 @@ export type VerificationResult = {
   agent_id_onchain?: number;
   content_id_onchain?: number;
   hamming_distance?: number;
+  phash?: string;
 };
 
 export function isBackendConnected(): boolean {
