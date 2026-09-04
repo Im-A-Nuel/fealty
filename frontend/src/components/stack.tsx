@@ -93,8 +93,10 @@ function SpecRow({ label, value }: { label: string; value: string }) {
 const css = `
   .carousal-fealty {
     width: 100%;
+    max-width: 932px;
     height: 460px;
     padding-bottom: 46px !important;
+    overflow: hidden;
   }
 
   .carousal-fealty .swiper-slide {
@@ -120,8 +122,8 @@ const css = `
     opacity: 1;
   }
 
-  .stack-nav .swiper-button-next,
-  .stack-nav .swiper-button-prev {
+  .stack-nav .stack-next,
+  .stack-nav .stack-prev {
     position: static;
     top: auto;
     margin-top: 0;
@@ -134,8 +136,8 @@ const css = `
     transition: border-color 0.2s ease;
   }
 
-  .stack-nav .swiper-button-next:hover,
-  .stack-nav .swiper-button-prev:hover {
+  .stack-nav .stack-next:hover,
+  .stack-nav .stack-prev:hover {
     border-color: var(--gold);
   }
 `;
@@ -169,7 +171,7 @@ export default function Stack() {
               <button
                 type="button"
                 aria-label="Previous slide"
-                className="swiper-button-prev after:hidden hidden h-11 w-11 shrink-0 items-center justify-center rounded-full text-gold sm:inline-flex"
+                className="stack-prev after:hidden hidden h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full text-gold sm:inline-flex"
               >
                 <ChevronLeftIcon className="h-5 w-5" />
               </button>
@@ -200,11 +202,11 @@ export default function Stack() {
                   slideShadows: false,
                 }}
                 pagination={{ clickable: true }}
-                navigation={{
-                  nextEl: ".swiper-button-next",
-                  prevEl: ".swiper-button-prev",
-                }}
-                className="carousal-fealty min-w-0 flex-1"
+              navigation={{
+                nextEl: ".stack-next",
+                prevEl: ".stack-prev",
+              }}
+              className="carousal-fealty min-w-0 flex-1"
                 modules={[EffectCoverflow, Autoplay, Pagination, Navigation]}
               >
                 {stack.map((item) => (
@@ -228,7 +230,7 @@ export default function Stack() {
               <button
                 type="button"
                 aria-label="Next slide"
-                className="swiper-button-next after:hidden hidden h-11 w-11 shrink-0 items-center justify-center rounded-full text-gold sm:inline-flex"
+                className="stack-next after:hidden hidden h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full text-gold sm:inline-flex"
               >
                 <ChevronRightIcon className="h-5 w-5" />
               </button>
