@@ -8,7 +8,9 @@ import PhashGrid from "@/components/phash-grid";
 import { useReducedMotion } from "@/components/reveal";
 import { useToast } from "@/components/toast";
 import { isBackendConnected, verifyFile, type VerificationResult } from "@/lib/api";
-import { delay, demoVerification } from "@/lib/demo";
+import { delay } from "@/lib/demo";
+import { scanDemo } from "@/lib/demo-registry";
+import { computeDHash } from "@/lib/hash";
 import { cn } from "@/lib/utils";
 
 const MAX_SIZE = 10 * 1024 * 1024;
@@ -90,8 +92,9 @@ export default function VerifyPage() {
     try {
       let result: VerificationResult;
       if (!isBackendConnected()) {
-        await delay(1200);
-        result = demoVerification;
+        await delay(500);
+        const phash = await computeDHash(file);
+        result = scanDemo(phash);
       } else {
         result = await verifyFile(file);
       }

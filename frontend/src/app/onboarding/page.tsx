@@ -389,15 +389,21 @@ export default function OnboardingPage() {
                   className="mt-8 flex flex-col justify-center gap-3 sm:flex-row sm:items-center"
                 >
                   <Link
-                    href={`/agents/${DEMO_AGENT_ID}`}
+                    href={`/agents/${DEMO_AGENT_ID}/register`}
                     className="btn-sheen inline-flex min-h-11 items-center justify-center rounded-full bg-gold px-7 text-sm font-semibold text-background transition-[box-shadow,transform] duration-200 ease-out hover:bg-goldbright active:scale-95"
+                  >
+                    Register your first file
+                  </Link>
+                  <Link
+                    href={`/agents/${DEMO_AGENT_ID}`}
+                    className="btn-ring inline-flex min-h-11 items-center justify-center rounded-full px-7 text-sm font-medium text-ink transition-colors hover:text-goldbright"
                   >
                     View agent profile
                   </Link>
                   <button
                     type="button"
                     onClick={reset}
-                    className="btn-ring inline-flex min-h-11 items-center justify-center rounded-full px-7 text-sm font-medium text-ink transition-colors hover:text-goldbright"
+                    className="inline-flex min-h-11 items-center justify-center text-sm font-medium text-muted transition-colors hover:text-goldbright"
                   >
                     Start over
                   </button>

@@ -48,3 +48,17 @@ export async function verifyFile(file: File): Promise<VerificationResult> {
   if (!res.ok) throw new Error(`Verification failed: HTTP ${res.status}`);
   return res.json();
 }
+
+export async function registerContent(
+  agentId: number,
+  file: File,
+  txHash: string,
+): Promise<ContentRecord> {
+  const form = new FormData();
+  form.append("file", file);
+  form.append("agent_id_onchain", String(agentId));
+  form.append("tx_hash", txHash);
+  const res = await fetch(`${API_BASE}/content/register`, { method: "POST", body: form });
+  if (!res.ok) throw new Error(`Content registration failed: HTTP ${res.status}`);
+  return res.json();
+}

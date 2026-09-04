@@ -8,6 +8,7 @@ import PhashGrid from "@/components/phash-grid";
 import { Reveal } from "@/components/reveal";
 import { fetchAgent, isBackendConnected, type Agent } from "@/lib/api";
 import { demoAgentFor } from "@/lib/demo";
+import { mergeContent } from "@/lib/demo-registry";
 
 type ViewState =
   | { kind: "loading" }
@@ -29,16 +30,27 @@ function Skeleton() {
 }
 
 export default function AgentProfilePage({ params }: { params: { agentId: string } }) {
-  const [state, setState] = useState<ViewState>(() =>
-    !isBackendConnected()
-      ? { kind: "ready", agent: demoAgentFor(params.agentId), demo: true }
-      : { kind: "loading" },
-  );
+  const [state, setState] = useState<ViewState>(() => {
+    if (!isBackendConnected()) {
+      const agent = demoAgentFor(params.agentId);
+      return {
+        kind: "ready",
+        agent: { ...agent, content: mergeContent(agent.agent_id_onchain, agent.content) },
+        demo: true,
+      };
+    }
+    return { kind: "loading" };
+  });
 
   const load = useCallback(async () => {
     setState({ kind: "loading" });
     if (!isBackendConnected()) {
-      setState({ kind: "ready", agent: demoAgentFor(params.agentId), demo: true });
+      const agent = demoAgentFor(params.agentId);
+      setState({
+        kind: "ready",
+        agent: { ...agent, content: mergeContent(agent.agent_id_onchain, agent.content) },
+        demo: true,
+      });
       return;
     }
     try {
@@ -107,12 +119,20 @@ export default function AgentProfilePage({ params }: { params: { agentId: string
                   <p className="mt-1 font-mono text-sm text-muted">{state.agent.eoa_address}</p>
                 </div>
               </div>
-              <Link
-                href="/verify"
-                className="btn-ring inline-flex min-h-11 items-center justify-center rounded-full px-6 text-sm font-medium text-ink transition-colors hover:text-goldbright"
-              >
-                Check a file against this agent
-              </Link>
+              <div className="flex flex-col gap-3 sm:items-end">
+                <Link
+                  href={`/agents/${state.agent.agent_id_onchain}/register`}
+                  className="btn-sheen inline-flex min-h-11 items-center justify-center rounded-full bg-gold px-6 text-sm font-semibold text-background transition-[box-shadow,transform] duration-200 ease-out hover:bg-goldbright active:scale-95"
+                >
+                  Register content
+                </Link>
+                <Link
+                  href="/verify"
+                  className="btn-ring inline-flex min-h-11 items-center justify-center rounded-full px-6 text-sm font-medium text-ink transition-colors hover:text-goldbright"
+                >
+                  Check a file against this agent
+                </Link>
+              </div>
             </div>
           </Reveal>
 
@@ -132,6 +152,12 @@ export default function AgentProfilePage({ params }: { params: { agentId: string
                   Content this agent registers will show up here, each bound to a perceptual
                   hash and an onchain record.
                 </p>
+                <Link
+                  href={`/agents/${state.agent.agent_id_onchain}/register`}
+                  className="btn-sheen mt-6 inline-flex min-h-11 items-center justify-center rounded-full bg-gold px-6 text-sm font-semibold text-background transition-[box-shadow,transform] duration-200 ease-out hover:bg-goldbright active:scale-95"
+                >
+                  Register your first file
+                </Link>
               </div>
             </Reveal>
           ) : (

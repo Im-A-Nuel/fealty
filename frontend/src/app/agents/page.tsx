@@ -7,7 +7,7 @@ import FingerprintSeal from "@/components/fingerprint-seal";
 import { Reveal } from "@/components/reveal";
 import SpotlightCard from "@/components/spotlight-card";
 import { fetchAgents, isBackendConnected, type Agent } from "@/lib/api";
-import { demoAgents } from "@/lib/demo";
+import { demoAgentCards } from "@/lib/demo-registry";
 
 type ViewState =
   | { kind: "loading" }
@@ -29,14 +29,14 @@ export default function AgentsPage() {
   const load = useCallback(async () => {
     setState({ kind: "loading" });
     if (!isBackendConnected()) {
-      setState({ kind: "ready", agents: demoAgents, demo: true });
+      setState({ kind: "ready", agents: demoAgentCards(), demo: true });
       return;
     }
     try {
       const agents = await fetchAgents();
       setState({ kind: "ready", agents, demo: false });
     } catch {
-      setState({ kind: "ready", agents: demoAgents, demo: true });
+      setState({ kind: "ready", agents: demoAgentCards(), demo: true });
     }
   }, []);
 
