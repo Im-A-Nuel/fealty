@@ -4,7 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
-const links = [{ href: "/verify", label: "Verify" }];
+const links = [
+  { href: "/agents", label: "Agents" },
+  { href: "/verify", label: "Verify" },
+];
 
 export default function Navbar() {
   const pathname = usePathname();

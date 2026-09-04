@@ -2,15 +2,16 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import DemoBadge from "@/components/demo-badge";
 import FingerprintSeal from "@/components/fingerprint-seal";
 import PhashGrid from "@/components/phash-grid";
 import { fetchAgent, isBackendConnected, type Agent } from "@/lib/api";
+import { demoAgentFor } from "@/lib/demo";
 
 type ViewState =
   | { kind: "loading" }
-  | { kind: "offline" }
   | { kind: "error"; message: string }
-  | { kind: "ready"; agent: Agent };
+  | { kind: "ready"; agent: Agent; demo: boolean };
 
 function Skeleton() {
   return (
@@ -27,17 +28,21 @@ function Skeleton() {
 }
 
 export default function AgentProfilePage({ params }: { params: { agentId: string } }) {
-  const [state, setState] = useState<ViewState>({ kind: "loading" });
+  const [state, setState] = useState<ViewState>(() =>
+    !isBackendConnected()
+      ? { kind: "ready", agent: demoAgentFor(params.agentId), demo: true }
+      : { kind: "loading" },
+  );
 
   const load = useCallback(async () => {
     setState({ kind: "loading" });
     if (!isBackendConnected()) {
-      setState({ kind: "offline" });
+      setState({ kind: "ready", agent: demoAgentFor(params.agentId), demo: true });
       return;
     }
     try {
       const agent = await fetchAgent(params.agentId);
-      setState({ kind: "ready", agent });
+      setState({ kind: "ready", agent, demo: false });
     } catch (err) {
       setState({
         kind: "error",
@@ -53,28 +58,6 @@ export default function AgentProfilePage({ params }: { params: { agentId: string
   return (
     <main className="mx-auto max-w-4xl px-6 pb-24 pt-28 md:pt-36">
       {state.kind === "loading" ? <Skeleton /> : null}
-
-      {state.kind === "offline" ? (
-        <div className="text-center">
-          <div className="mx-auto w-28">
-            <FingerprintSeal />
-          </div>
-          <h1 className="mt-6 font-display text-3xl font-black uppercase tracking-tight text-ink">
-            Backend not connected.
-          </h1>
-          <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted">
-            Agent #{params.agentId} will load here once the Go API is deployed. The page is
-            ready: profile header, verified content grid, and every state in between.
-          </p>
-          <button
-            type="button"
-            onClick={() => void load()}
-            className="mt-8 inline-flex min-h-11 items-center justify-center rounded-full bg-gold px-7 text-sm font-semibold text-background transition-[box-shadow,transform] duration-200 ease-out hover:bg-goldbright active:scale-95"
-          >
-            Retry
-          </button>
-        </div>
-      ) : null}
 
       {state.kind === "error" ? (
         <div className="text-center">
@@ -102,7 +85,10 @@ export default function AgentProfilePage({ params }: { params: { agentId: string
                 <FingerprintSeal />
               </div>
               <div>
-                <p className="font-mono text-xs text-goldbright">#{state.agent.agent_id_onchain}</p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="font-mono text-xs text-goldbright">#{state.agent.agent_id_onchain}</p>
+                  {state.demo ? <DemoBadge label="Demo data" /> : null}
+                </div>
                 <h1 className="font-display text-3xl font-black uppercase tracking-tight text-ink sm:text-4xl">
                   {state.agent.display_name ?? "Unnamed agent"}
                 </h1>

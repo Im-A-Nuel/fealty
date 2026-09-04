@@ -1,8 +1,10 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
+import DemoBadge from "@/components/demo-badge";
 import FingerprintSeal from "@/components/fingerprint-seal";
 import { isBackendConnected, verifyFile, type VerificationResult } from "@/lib/api";
+import { delay, demoVerification } from "@/lib/demo";
 import { cn } from "@/lib/utils";
 
 const MAX_SIZE = 10 * 1024 * 1024;
@@ -55,17 +57,18 @@ export default function VerifyPage() {
     const { file, url } = state;
     setState({ kind: "verifying", file, url });
     try {
+      if (!isBackendConnected()) {
+        await delay(1200);
+        setState({ kind: "done", result: demoVerification, file, url });
+        return;
+      }
       const result = await verifyFile(file);
       setState({ kind: "done", result, file, url });
     } catch (err) {
-      const offline = !isBackendConnected();
       setState({
         kind: "error",
-        message: offline
-          ? "The verification service is not online yet. The Go backend is next on the build."
-          : err instanceof Error
-            ? err.message
-            : "Verification failed.",
+        message:
+          err instanceof Error ? err.message : "Verification failed.",
         file,
         url,
       });
@@ -92,8 +95,7 @@ export default function VerifyPage() {
       {!isBackendConnected() ? (
         <div className="mt-8 flex items-center gap-2 rounded-full border border-gold/30 bg-gold/5 px-4 py-2.5 text-sm text-goldbright">
           <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-gold" />
-          Backend not connected yet: this page is the interface, verification runs once the
-          Go API is deployed.
+          Backend not connected: the result below is a simulated demo.
         </div>
       ) : null}
 
@@ -201,6 +203,11 @@ export default function VerifyPage() {
             <div className="mx-auto w-28">
               <FingerprintSeal />
             </div>
+            {!isBackendConnected() ? (
+              <div className="mt-4 flex justify-center">
+                <DemoBadge label="Demo result" />
+              </div>
+            ) : null}
             {state.result.verified ? (
               <>
                 <h2 className="mt-6 font-display text-3xl font-black uppercase tracking-tight text-ink">
