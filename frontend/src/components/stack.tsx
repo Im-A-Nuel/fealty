@@ -100,6 +100,11 @@ const css = `
   .stack-carousel .swiper-slide {
     width: 280px;
     height: 400px;
+    z-index: 1;
+  }
+
+  .stack-carousel .swiper-slide-active {
+    z-index: 5 !important;
   }
 
   .stack-carousel .swiper-pagination-bullet {
@@ -183,9 +188,9 @@ export default function Stack() {
               centeredSlides={true}
               loop={true}
               coverflowEffect={{
-                rotate: 24,
-                stretch: 0,
-                depth: 90,
+                rotate: 22,
+                stretch: 36,
+                depth: 80,
                 modifier: 1,
                 slideShadows: false,
               }}
