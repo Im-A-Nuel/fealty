@@ -120,10 +120,11 @@ const css = `
     opacity: 1;
   }
 
-  .carousal-fealty .swiper-button-next,
-  .carousal-fealty .swiper-button-prev {
-    top: 44%;
-    z-index: 10;
+  .stack-nav .swiper-button-next,
+  .stack-nav .swiper-button-prev {
+    position: static;
+    top: auto;
+    margin-top: 0;
     width: 44px;
     height: 44px;
     border-radius: 9999px;
@@ -133,8 +134,8 @@ const css = `
     transition: border-color 0.2s ease;
   }
 
-  .carousal-fealty .swiper-button-next:hover,
-  .carousal-fealty .swiper-button-prev:hover {
+  .stack-nav .swiper-button-next:hover,
+  .stack-nav .swiper-button-prev:hover {
     border-color: var(--gold);
   }
 `;
@@ -160,71 +161,78 @@ export default function Stack() {
             initial={{ opacity: 0, translateY: 20 }}
             animate={{ opacity: 1, translateY: 0 }}
             transition={{ duration: 0.3, delay: 0.2 }}
-            className="relative mx-auto mt-12 w-full max-w-[900px] px-2 sm:px-6"
+            className="relative mx-auto mt-12 w-full max-w-[1080px] px-2 sm:px-6"
           >
             <style>{css}</style>
 
-            <Swiper
-              spaceBetween={16}
-              autoplay={
-                reduced
-                  ? false
-                  : {
-                      delay: 2600,
-                      disableOnInteraction: true,
-                      reverseDirection: true,
-                    }
-              }
-              effect="coverflow"
-              grabCursor={true}
-              slidesPerView="auto"
-              centeredSlides={true}
-              loop={true}
-              loopAdditionalSlides={2}
-              watchSlidesProgress={true}
-              coverflowEffect={{
-                rotate: 30,
-                stretch: 0,
-                depth: 100,
-                modifier: 1,
-                slideShadows: false,
-              }}
-              pagination={{ clickable: true }}
-              navigation={{
-                nextEl: ".swiper-button-next",
-                prevEl: ".swiper-button-prev",
-              }}
-              className="carousal-fealty"
-              modules={[EffectCoverflow, Autoplay, Pagination, Navigation]}
-            >
-              {stack.map((item) => (
-                <SwiperSlide key={item.name}>
-                  <div
-                    className="flex h-full flex-col rounded-3xl border border-line p-6 bg-[linear-gradient(180deg,#101010_0%,#181818_100%)] shadow-[0_16px_48px_rgba(0,0,0,0.4)]"
-                  >
-                    <p className="font-display text-xl font-black uppercase tracking-tight text-gold">
-                      {item.name}
-                    </p>
-                    <p className="mt-1 text-[11px] font-semibold uppercase tracking-widest text-muted">
-                      {item.role}
-                    </p>
-                    <div className="my-6 flex-1">{item.visual}</div>
-                    <p className="border-t border-line pt-4 text-sm leading-relaxed text-muted">
-                      {item.body}
-                    </p>
-                  </div>
-                </SwiperSlide>
-              ))}
+            <div className="stack-nav flex items-center gap-3 sm:gap-5">
+              <button
+                type="button"
+                aria-label="Previous slide"
+                className="swiper-button-prev after:hidden hidden h-11 w-11 shrink-0 items-center justify-center rounded-full text-gold sm:inline-flex"
+              >
+                <ChevronLeftIcon className="h-5 w-5" />
+              </button>
 
-              <div>
-                <div className="swiper-button-next after:hidden">
-                  <ChevronRightIcon className="h-5 w-5" />
-                </div>
-                <div className="swiper-button-prev after:hidden">
-                  <ChevronLeftIcon className="h-5 w-5" />
-                </div>
-              </div>
-            </Swiper>
+              <Swiper
+                spaceBetween={16}
+                autoplay={
+                  reduced
+                    ? false
+                    : {
+                        delay: 2600,
+                        disableOnInteraction: true,
+                        reverseDirection: true,
+                      }
+                }
+                effect="coverflow"
+                grabCursor={true}
+                slidesPerView="auto"
+                centeredSlides={true}
+                loop={true}
+                loopAdditionalSlides={2}
+                watchSlidesProgress={true}
+                coverflowEffect={{
+                  rotate: 30,
+                  stretch: 0,
+                  depth: 100,
+                  modifier: 1,
+                  slideShadows: false,
+                }}
+                pagination={{ clickable: true }}
+                navigation={{
+                  nextEl: ".swiper-button-next",
+                  prevEl: ".swiper-button-prev",
+                }}
+                className="carousal-fealty min-w-0 flex-1"
+                modules={[EffectCoverflow, Autoplay, Pagination, Navigation]}
+              >
+                {stack.map((item) => (
+                  <SwiperSlide key={item.name}>
+                    <div className="flex h-full flex-col rounded-3xl border border-line p-6 bg-[linear-gradient(180deg,#101010_0%,#181818_100%)] shadow-[0_16px_48px_rgba(0,0,0,0.4)]">
+                      <p className="font-display text-xl font-black uppercase tracking-tight text-gold">
+                        {item.name}
+                      </p>
+                      <p className="mt-1 text-[11px] font-semibold uppercase tracking-widest text-muted">
+                        {item.role}
+                      </p>
+                      <div className="my-6 flex-1">{item.visual}</div>
+                      <p className="border-t border-line pt-4 text-sm leading-relaxed text-muted">
+                        {item.body}
+                      </p>
+                    </div>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+
+              <button
+                type="button"
+                aria-label="Next slide"
+                className="swiper-button-next after:hidden hidden h-11 w-11 shrink-0 items-center justify-center rounded-full text-gold sm:inline-flex"
+              >
+                <ChevronRightIcon className="h-5 w-5" />
+              </button>
+            </div>
           </motion.div>
         </Reveal>
       </div>
