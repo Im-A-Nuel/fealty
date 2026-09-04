@@ -400,10 +400,12 @@ export default function OnboardingPage() {
                   >
                     View agent profile
                   </Link>
+                </motion.div>
+                <motion.div variants={item}>
                   <button
                     type="button"
                     onClick={reset}
-                    className="btn-ring inline-flex min-h-11 items-center justify-center rounded-full px-7 text-sm font-medium text-ink transition-colors hover:text-goldbright"
+                    className="mt-5 inline-flex min-h-11 items-center justify-center text-sm font-medium text-muted transition-colors hover:text-goldbright"
                   >
                     Start over
                   </button>
