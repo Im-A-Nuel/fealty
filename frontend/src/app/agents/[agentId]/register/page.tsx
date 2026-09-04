@@ -20,6 +20,7 @@ import {
 import { registerContentDemo } from "@/lib/demo-registry";
 import { demoAgentFor } from "@/lib/demo";
 import { computeDHash, makeThumbnail } from "@/lib/hash";
+import { makeSampleFile } from "@/lib/sample";
 import { cn } from "@/lib/utils";
 
 const MAX_SIZE = 10 * 1024 * 1024;
@@ -49,6 +50,7 @@ export default function RegisterPage({ params }: { params: { agentId: string } }
   const [state, setState] = useState<State>({ kind: "idle" });
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [sampleBusy, setSampleBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const acceptFile = useCallback(
@@ -220,6 +222,33 @@ export default function RegisterPage({ params }: { params: { agentId: string } }
             <p className="mt-4 text-sm font-medium text-ink">Drop an image here, or click to browse</p>
             <p className="mt-1 text-xs text-muted">Image only, up to 10MB</p>
           </label>
+        ) : null}
+
+        {state.kind === "idle" ? (
+          <div className="mt-5 flex items-center justify-center gap-2 border-t border-line pt-5">
+            <button
+              type="button"
+              onClick={async () => {
+                setSampleBusy(true);
+                try {
+                  acceptFile(await makeSampleFile(9));
+                } finally {
+                  setSampleBusy(false);
+                }
+              }}
+              disabled={sampleBusy}
+              className="inline-flex min-h-11 items-center gap-2 text-sm font-medium text-goldbright transition-opacity hover:opacity-80 disabled:pointer-events-none disabled:opacity-50"
+            >
+              {sampleBusy ? (
+                <Spinner />
+              ) : (
+                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M8 5l11 7-11 7V5z" />
+                </svg>
+              )}
+              Use a sample image
+            </button>
+          </div>
         ) : null}
 
         {state.kind === "preview" || state.kind === "hashing" ? (

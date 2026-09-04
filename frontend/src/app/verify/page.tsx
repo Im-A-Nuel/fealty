@@ -16,8 +16,14 @@ import {
   type VerificationResult,
 } from "@/lib/api";
 import { delay } from "@/lib/demo";
-import { scanDemo } from "@/lib/demo-registry";
-import { computeDHash } from "@/lib/hash";
+import {
+  demoSampleSeeded,
+  markDemoSampleSeeded,
+  registerContentDemo,
+  scanDemo,
+} from "@/lib/demo-registry";
+import { computeDHash, makeThumbnail } from "@/lib/hash";
+import { compressCopy, makeSampleFile } from "@/lib/sample";
 import { cn } from "@/lib/utils";
 
 const MAX_SIZE = 10 * 1024 * 1024;
@@ -67,6 +73,70 @@ export default function VerifyPage() {
   const toast = useToast();
   const [dragOver, setDragOver] = useState(false);
   const [state, setState] = useState<State>({ kind: "idle" });
+  const [demoBusy, setDemoBusy] = useState(false);
+  const [proveBusy, setProveBusy] = useState(false);
+  const [prove, setProve] = useState<{ distance: number } | null>(null);
+
+  const runLiveDemo = useCallback(async () => {
+    setDemoBusy(true);
+    try {
+      const sample = await makeSampleFile(7);
+      const phash = await computeDHash(sample);
+      if (!demoSampleSeeded()) {
+        registerContentDemo(42, sample, phash, await makeThumbnail(sample));
+        markDemoSampleSeeded();
+      }
+      const url = URL.createObjectURL(sample);
+      const result = scanDemo(phash);
+      setProve(null);
+      setState({ kind: "done", result, file: sample, url });
+      toast({
+        variant: "success",
+        title: "Verified",
+        message: `Demo sample traces to agent #${result.agent_id_onchain}.`,
+      });
+    } catch (err) {
+      toast({
+        variant: "error",
+        title: "Demo failed",
+        message: err instanceof Error ? err.message : "Try again.",
+      });
+    } finally {
+      setDemoBusy(false);
+    }
+  }, [toast]);
+
+  const proveResilience = useCallback(async () => {
+    if (state.kind !== "done") return;
+    setProveBusy(true);
+    try {
+      const compressed = await compressCopy(state.file);
+      const phash = await computeDHash(compressed);
+      const result = scanDemo(phash);
+      setProve({ distance: result.hamming_distance ?? -1 });
+      if (result.verified) {
+        toast({
+          variant: "success",
+          title: "Re-encoding survived",
+          message: `A 50% re-encoded copy still matched, distance ${result.hamming_distance} of 64.`,
+        });
+      } else {
+        toast({
+          variant: "info",
+          title: "Re-encoding survived",
+          message: "The compressed copy still traced back.",
+        });
+      }
+    } catch (err) {
+      toast({
+        variant: "error",
+        title: "Could not prove it",
+        message: err instanceof Error ? err.message : "Try again.",
+      });
+    } finally {
+      setProveBusy(false);
+    }
+  }, [state, toast]);
 
   const acceptFile = useCallback((file: File) => {
     if (!file.type.startsWith("image/")) {
@@ -212,6 +282,26 @@ export default function VerifyPage() {
             </p>
             <p className="mt-1 text-xs text-muted">Image only, up to 10MB</p>
           </label>
+        ) : null}
+
+        {state.kind === "idle" ? (
+          <div className="mt-5 flex items-center justify-center gap-2 border-t border-line pt-5">
+            <button
+              type="button"
+              onClick={() => void runLiveDemo()}
+              disabled={demoBusy}
+              className="inline-flex min-h-11 items-center gap-2 text-sm font-medium text-goldbright transition-opacity hover:opacity-80 disabled:pointer-events-none disabled:opacity-50"
+            >
+              {demoBusy ? (
+                <Spinner />
+              ) : (
+                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M8 5l11 7-11 7V5z" />
+                </svg>
+              )}
+              No file handy? Run the live demo
+            </button>
+          </div>
         ) : null}
 
         {state.kind === "preview" || state.kind === "verifying" ? (
@@ -375,6 +465,41 @@ export default function VerifyPage() {
                 {state.result.phash ?? "n/a"}
               </p>
             </motion.div>
+
+            {state.result.verified && !isBackendConnected() ? (
+              <motion.div
+                initial={reduced ? false : { opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35 }}
+                className="mx-auto mt-6 max-w-xs rounded-xl border border-gold/30 bg-gold/5 p-4 text-left"
+              >
+                {prove ? (
+                  <p className="text-sm leading-relaxed text-ink">
+                    <span className="font-semibold text-goldbright">Re-encoding survived.</span>{" "}
+                    A copy re-encoded at 50% and JPEG quality 50 still matched, distance{" "}
+                    <span className="font-mono text-goldbright">
+                      <CountUp value={prove.distance} />
+                    </span>{" "}
+                    of 64.
+                  </p>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => void proveResilience()}
+                    disabled={proveBusy}
+                    className="inline-flex min-h-11 w-full items-center justify-center gap-2 text-sm font-semibold text-goldbright transition-opacity hover:opacity-80 disabled:pointer-events-none disabled:opacity-50"
+                  >
+                    {proveBusy ? (
+                      <>
+                        <Spinner /> Re-encoding a copy…
+                      </>
+                    ) : (
+                      "Prove it: verify a re-encoded copy"
+                    )}
+                  </button>
+                )}
+              </motion.div>
+            ) : null}
 
             <motion.button
               type="button"

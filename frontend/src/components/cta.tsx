@@ -15,12 +15,20 @@ export default function Cta() {
         </Reveal>
 
         <Reveal delay={140}>
-          <Link
-            href="/onboarding"
-            className="btn-sheen mt-10 inline-flex min-h-11 items-center justify-center rounded-full bg-gold px-8 text-sm font-semibold text-background transition-[box-shadow,transform] duration-200 ease-out hover:bg-goldbright active:scale-95"
-          >
-            Create a passkey identity
-          </Link>
+          <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <Link
+              href="/onboarding"
+              className="btn-sheen inline-flex min-h-11 items-center justify-center rounded-full bg-gold px-8 text-sm font-semibold text-background transition-[box-shadow,transform] duration-200 ease-out hover:bg-goldbright active:scale-95"
+            >
+              Create a passkey identity
+            </Link>
+            <Link
+              href="/verify"
+              className="btn-ring inline-flex min-h-11 items-center justify-center rounded-full px-8 text-sm font-medium text-ink transition-colors hover:text-goldbright"
+            >
+              Verify a file live
+            </Link>
+          </div>
         </Reveal>
       </div>
     </section>

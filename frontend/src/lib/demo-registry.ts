@@ -4,7 +4,23 @@ import { hammingDistance } from "./hash";
 
 const KEY = "fealty-demo-content-v1";
 const COUNTER_KEY = "fealty-demo-content-counter-v1";
-export const VERIFY_THRESHOLD = 12;
+export const VERIFY_THRESHOLD = 14;
+
+const SAMPLE_KEY = "fealty-demo-sample-seeded";
+
+export function demoSampleSeeded(): boolean {
+  if (typeof window === "undefined") return false;
+  return window.localStorage.getItem(SAMPLE_KEY) === "1";
+}
+
+export function markDemoSampleSeeded() {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(SAMPLE_KEY, "1");
+  } catch {
+    // ignore
+  }
+}
 
 type Stored = ContentRecord & { agentId: number };
 
