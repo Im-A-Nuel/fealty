@@ -98,7 +98,6 @@ const css = `
   }
 
   .stack-carousel .swiper-slide {
-    width: 280px;
     height: 400px;
     z-index: 1;
   }
@@ -122,6 +121,7 @@ const css = `
   .stack-carousel .swiper-button-prev {
     top: 44%;
     display: none;
+    z-index: 10;
     width: 44px;
     height: 44px;
     border-radius: 9999px;
@@ -129,6 +129,7 @@ const css = `
     border: 1px solid var(--line);
     color: var(--gold);
     transition: border-color 0.2s ease;
+    cursor: pointer;
   }
 
   .stack-carousel .swiper-button-next:hover,
@@ -169,11 +170,15 @@ export default function Stack() {
         </Reveal>
 
         <Reveal delay={120}>
-          <div className="relative mx-auto mt-12 w-full max-w-6xl px-6 sm:px-12">
+          <div className="relative mx-auto mt-12 w-full max-w-[760px]">
             <style>{css}</style>
 
             <Swiper
-              spaceBetween={20}
+              spaceBetween={16}
+              breakpoints={{
+                640: { slidesPerView: 1.8, spaceBetween: 20 },
+                1024: { slidesPerView: 2.3, spaceBetween: 20 },
+              }}
               autoplay={
                 reduced
                   ? false
@@ -184,15 +189,14 @@ export default function Stack() {
               }
               effect="coverflow"
               grabCursor={true}
-              slidesPerView="auto"
+              slidesPerView={1.35}
               centeredSlides={true}
               loop={true}
-              loopAdditionalSlides={3}
               watchSlidesProgress={true}
               coverflowEffect={{
-                rotate: 22,
-                stretch: 36,
-                depth: 80,
+                rotate: 20,
+                stretch: 24,
+                depth: 70,
                 modifier: 1,
                 slideShadows: false,
               }}
