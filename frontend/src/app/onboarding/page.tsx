@@ -386,7 +386,7 @@ export default function OnboardingPage() {
                 </motion.p>
                 <motion.div
                   variants={item}
-                  className="mt-8 flex flex-col justify-center gap-3 sm:flex-row sm:items-center"
+                  className="mt-8 flex flex-wrap items-center justify-center gap-3"
                 >
                   <Link
                     href={`/agents/${DEMO_AGENT_ID}/register`}
@@ -403,7 +403,7 @@ export default function OnboardingPage() {
                   <button
                     type="button"
                     onClick={reset}
-                    className="inline-flex min-h-11 items-center justify-center text-sm font-medium text-muted transition-colors hover:text-goldbright"
+                    className="btn-ring inline-flex min-h-11 items-center justify-center rounded-full px-7 text-sm font-medium text-ink transition-colors hover:text-goldbright"
                   >
                     Start over
                   </button>
