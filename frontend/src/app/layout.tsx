@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Archivo, Inter } from "next/font/google";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
+import OfflineBanner from "@/components/offline-banner";
 import ScrollProgress from "@/components/scroll-progress";
 import { ToastProvider } from "@/components/toast";
 import "./globals.css";
@@ -47,6 +48,7 @@ export default function RootLayout({
         <ToastProvider>
           <ScrollProgress />
           <Navbar />
+          <OfflineBanner />
           {children}
           <Footer />
         </ToastProvider>

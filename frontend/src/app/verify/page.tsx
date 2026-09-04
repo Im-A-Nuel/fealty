@@ -6,8 +6,15 @@ import DemoBadge from "@/components/demo-badge";
 import FingerprintSeal from "@/components/fingerprint-seal";
 import PhashGrid from "@/components/phash-grid";
 import { useReducedMotion } from "@/components/reveal";
+import ScanOverlay from "@/components/scan-overlay";
 import { useToast } from "@/components/toast";
-import { isBackendConnected, verifyFile, type VerificationResult } from "@/lib/api";
+import {
+  isBackendConnected,
+  isOnline,
+  NetworkError,
+  verifyFile,
+  type VerificationResult,
+} from "@/lib/api";
 import { delay } from "@/lib/demo";
 import { scanDemo } from "@/lib/demo-registry";
 import { computeDHash } from "@/lib/hash";
@@ -91,12 +98,24 @@ export default function VerifyPage() {
     setState({ kind: "verifying", file, url });
     try {
       let result: VerificationResult;
-      if (!isBackendConnected()) {
+      if (!isBackendConnected() || !isOnline()) {
         await delay(500);
-        const phash = await computeDHash(file);
-        result = scanDemo(phash);
+        result = scanDemo(await computeDHash(file));
       } else {
-        result = await verifyFile(file);
+        try {
+          result = await verifyFile(file);
+        } catch (err) {
+          if (err instanceof NetworkError) {
+            toast({
+              variant: "info",
+              title: "Backend unreachable",
+              message: "Showing a local demo result instead.",
+            });
+            result = scanDemo(await computeDHash(file));
+          } else {
+            throw err;
+          }
+        }
       }
       setState({ kind: "done", result, file, url });
       if (result.verified) {
@@ -204,9 +223,7 @@ export default function VerifyPage() {
                 alt="Uploaded file preview"
                 className="max-h-80 w-full object-contain bg-surface2"
               />
-              {state.kind === "verifying" ? (
-                <div className="scan-line" aria-hidden="true" />
-              ) : null}
+              {state.kind === "verifying" ? <ScanOverlay label="Scanning" /> : null}
             </div>
             <div className="mt-4 flex items-center justify-between gap-4">
               <p className="truncate text-sm text-muted">{state.file.name}</p>

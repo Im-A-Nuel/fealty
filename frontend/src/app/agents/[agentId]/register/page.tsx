@@ -8,8 +8,15 @@ import DemoBadge from "@/components/demo-badge";
 import FingerprintSeal from "@/components/fingerprint-seal";
 import PhashGrid from "@/components/phash-grid";
 import { useReducedMotion } from "@/components/reveal";
+import ScanOverlay from "@/components/scan-overlay";
 import { useToast } from "@/components/toast";
-import { isBackendConnected, registerContent, type ContentRecord } from "@/lib/api";
+import {
+  isBackendConnected,
+  isOnline,
+  NetworkError,
+  registerContent,
+  type ContentRecord,
+} from "@/lib/api";
 import { registerContentDemo } from "@/lib/demo-registry";
 import { demoAgentFor } from "@/lib/demo";
 import { computeDHash, makeThumbnail } from "@/lib/hash";
@@ -93,11 +100,25 @@ export default function RegisterPage({ params }: { params: { agentId: string } }
     setError(null);
     try {
       let record: ContentRecord;
-      if (isBackendConnected()) {
-        record = await registerContent(agentId, state.file, `0x${state.phash}deadbeef`);
-      } else {
+      if (!isBackendConnected() || !isOnline()) {
         const thumb = await makeThumbnail(state.file);
         record = await registerContentDemo(agentId, state.file, state.phash, thumb);
+      } else {
+        try {
+          record = await registerContent(agentId, state.file, `0x${state.phash}deadbeef`);
+        } catch (err) {
+          if (err instanceof NetworkError) {
+            toast({
+              variant: "info",
+              title: "Backend unreachable",
+              message: "Storing a local demo record instead.",
+            });
+            const thumb = await makeThumbnail(state.file);
+            record = await registerContentDemo(agentId, state.file, state.phash, thumb);
+          } else {
+            throw err;
+          }
+        }
       }
       setConfirmOpen(false);
       setState({ kind: "done", record, file: state.file, url: state.url });
@@ -210,7 +231,7 @@ export default function RegisterPage({ params }: { params: { agentId: string } }
                 alt="Uploaded file preview"
                 className="max-h-80 w-full object-contain bg-surface2"
               />
-              {state.kind === "hashing" ? <div className="scan-line" aria-hidden="true" /> : null}
+              {state.kind === "hashing" ? <ScanOverlay label="Hashing" /> : null}
             </div>
             <div className="mt-4 flex items-center justify-between gap-4">
               <p className="truncate text-sm text-muted">{state.file.name}</p>

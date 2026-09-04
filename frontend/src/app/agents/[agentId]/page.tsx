@@ -6,7 +6,7 @@ import DemoBadge from "@/components/demo-badge";
 import FingerprintSeal from "@/components/fingerprint-seal";
 import PhashGrid from "@/components/phash-grid";
 import { Reveal } from "@/components/reveal";
-import { fetchAgent, isBackendConnected, type Agent } from "@/lib/api";
+import { fetchAgent, isBackendConnected, NetworkError, type Agent } from "@/lib/api";
 import { demoAgentFor } from "@/lib/demo";
 import { mergeContent } from "@/lib/demo-registry";
 
@@ -57,6 +57,15 @@ export default function AgentProfilePage({ params }: { params: { agentId: string
       const agent = await fetchAgent(params.agentId);
       setState({ kind: "ready", agent, demo: false });
     } catch (err) {
+      if (err instanceof NetworkError) {
+        const agent = demoAgentFor(params.agentId);
+        setState({
+          kind: "ready",
+          agent: { ...agent, content: mergeContent(agent.agent_id_onchain, agent.content) },
+          demo: true,
+        });
+        return;
+      }
       setState({
         kind: "error",
         message: err instanceof Error ? err.message : "Agent lookup failed.",

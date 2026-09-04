@@ -64,19 +64,111 @@ body {
     }
   }
 
-  .scan-line {
+  .scan-overlay {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    background: rgba(5, 5, 5, 0.28);
+  }
+
+  .scan-corner {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--gold-bright);
+    z-index: 2;
+  }
+
+  .scan-corner-tl {
+    top: 12px;
+    left: 12px;
+    border-right: 0;
+    border-bottom: 0;
+    border-radius: 8px 0 0 0;
+  }
+
+  .scan-corner-tr {
+    top: 12px;
+    right: 12px;
+    border-left: 0;
+    border-bottom: 0;
+    border-radius: 0 8px 0 0;
+  }
+
+  .scan-corner-bl {
+    bottom: 12px;
+    left: 12px;
+    border-right: 0;
+    border-top: 0;
+    border-radius: 0 0 0 8px;
+  }
+
+  .scan-corner-br {
+    bottom: 12px;
+    right: 12px;
+    border-left: 0;
+    border-top: 0;
+    border-radius: 0 0 8px 0;
+  }
+
+  .scan-beam {
     position: absolute;
     left: 0;
     right: 0;
-    top: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--gold-bright), transparent);
-    box-shadow: 0 0 14px rgba(230, 195, 79, 0.55);
-    animation: scan 1.6s ease-in-out infinite;
-    pointer-events: none;
+    height: 48px;
+    animation: scan-beam 1.9s ease-in-out infinite;
+    z-index: 1;
   }
 
-  @keyframes scan {
+  .scan-beam::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent, rgba(230, 195, 79, 0.16), transparent);
+  }
+
+  .scan-beam::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold-bright), transparent);
+    box-shadow: 0 0 18px rgba(230, 195, 79, 0.75);
+  }
+
+  .scan-label {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 9999px;
+    border: 1px solid var(--line);
+    background: rgba(5, 5, 5, 0.72);
+    color: var(--gold-bright);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .scan-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 9999px;
+    background: var(--gold-bright);
+    animation: scan-dot 1s ease-in-out infinite;
+  }
+
+  @keyframes scan-beam {
     0% {
       top: 0;
       opacity: 0;
@@ -90,6 +182,16 @@ body {
     100% {
       top: 100%;
       opacity: 0;
+    }
+  }
+
+  @keyframes scan-dot {
+    0%,
+    100% {
+      opacity: 0.3;
+    }
+    50% {
+      opacity: 1;
     }
   }
 
