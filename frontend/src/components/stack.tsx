@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import {
   Autoplay,
@@ -18,6 +17,15 @@ import { cn } from "@/lib/utils";
 import PhashGrid from "./phash-grid";
 import { Reveal, useReducedMotion } from "./reveal";
 
+function SpecRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between gap-4 border-t border-line pt-3">
+      <p className="text-[11px] font-medium uppercase tracking-widest text-muted">{label}</p>
+      <p className="truncate text-sm font-medium text-ink">{value}</p>
+    </div>
+  );
+}
+
 const stack = [
   {
     name: "Mera",
@@ -31,35 +39,25 @@ const stack = [
             <path d="M11 12L20 3M16 7l2 2M13 10l2 2" />
           </svg>
         </div>
-        <div className="rounded-xl border border-line bg-surface2 px-4 py-3">
-          <p className="text-[10px] uppercase tracking-widest text-muted">derived EOA</p>
-          <p className="mt-1 truncate font-mono text-sm text-goldbright">0x7a1e…d4f9</p>
-        </div>
-        <div className="rounded-xl border border-line bg-surface2 px-4 py-3">
-          <p className="text-[10px] uppercase tracking-widest text-muted">key material</p>
-          <p className="mt-1 text-sm text-ink">stays on-device</p>
-        </div>
+        <SpecRow label="key material" value="on-device" />
+        <SpecRow label="derived EOA" value="0x7a1e…d4f9" />
       </div>
     ),
   },
   {
     name: "Monad testnet",
     role: "Ledger",
-    body: "AgentIdentityRegistry and ContentProvenanceRegistry anchor every claim onchain, time-stamped and public.",
+    body: "Two registries anchor every claim onchain, time-stamped and public.",
     visual: (
       <div className="space-y-3">
-        <div className="rounded-xl border border-line bg-surface2 px-4 py-3">
-          <p className="text-[10px] uppercase tracking-widest text-muted">registry</p>
-          <p className="mt-1 truncate font-mono text-sm text-goldbright">AgentIdentityRegistry</p>
+        <div className="flex h-12 w-12 items-center justify-center rounded-full border border-line">
+          <svg viewBox="0 0 24 24" className="h-5 w-5 text-gold" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z" />
+            <path d="M12 12l8-4.5M12 12L4 7.5M12 12v9" />
+          </svg>
         </div>
-        <div className="rounded-xl border border-line bg-surface2 px-4 py-3">
-          <p className="text-[10px] uppercase tracking-widest text-muted">registry</p>
-          <p className="mt-1 truncate font-mono text-sm text-goldbright">ContentProvenanceRegistry</p>
-        </div>
-        <div className="flex items-center justify-between rounded-xl border border-line bg-surface2 px-4 py-3">
-          <p className="text-[10px] uppercase tracking-widest text-muted">network</p>
-          <p className="text-sm font-semibold text-goldbright">Monad</p>
-        </div>
+        <SpecRow label="identity" value="AgentIdentityRegistry" />
+        <SpecRow label="content" value="ContentProvenanceRegistry" />
       </div>
     ),
   },
@@ -69,7 +67,7 @@ const stack = [
     body: "A 64-bit perceptual hash per file, computed from the pixels, so it survives re-encoding.",
     visual: (
       <div className="rounded-xl border border-line bg-surface2 p-4">
-        <p className="text-[10px] uppercase tracking-widest text-muted">phash · 64 bit</p>
+        <p className="text-[11px] font-medium uppercase tracking-widest text-muted">phash · 64 bit</p>
         <PhashGrid seed={4} className="mt-3" />
       </div>
     ),
@@ -80,18 +78,13 @@ const stack = [
     body: "Every registered hash lives in memory, so a verification scan compares against all of them in one pass.",
     visual: (
       <div className="space-y-3">
-        <div className="rounded-xl border border-line bg-surface2 px-4 py-3">
-          <p className="text-[10px] uppercase tracking-widest text-muted">lookup</p>
-          <p className="mt-1 text-sm text-ink">Hamming distance scan</p>
+        <div className="flex h-12 w-12 items-center justify-center rounded-full border border-line">
+          <svg viewBox="0 0 24 24" className="h-5 w-5 text-gold" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M4 17h16M4 12h16M4 7h16" />
+          </svg>
         </div>
-        <div className="rounded-xl border border-line bg-surface2 px-4 py-3">
-          <p className="text-[10px] uppercase tracking-widest text-muted">store</p>
-          <p className="mt-1 text-sm text-ink">all registered hashes</p>
-        </div>
-        <div className="rounded-xl border border-line bg-surface2 px-4 py-3">
-          <p className="text-[10px] uppercase tracking-widest text-muted">match rule</p>
-          <p className="mt-1 text-sm text-ink">below the threshold</p>
-        </div>
+        <SpecRow label="lookup" value="Hamming distance" />
+        <SpecRow label="store" value="all registered hashes" />
       </div>
     ),
   },
@@ -100,20 +93,20 @@ const stack = [
 const css = `
   .stack-carousel {
     width: 100%;
-    height: 430px;
-    padding-bottom: 48px !important;
+    height: 460px;
+    padding-bottom: 46px !important;
   }
 
   .stack-carousel .swiper-slide {
     width: 300px;
-    height: 380px;
-    background-position: center;
-    background-size: cover;
+    height: 400px;
   }
 
   .stack-carousel .swiper-pagination-bullet {
+    width: 6px;
+    height: 6px;
     background-color: var(--gold) !important;
-    opacity: 0.35;
+    opacity: 0.3;
   }
 
   .stack-carousel .swiper-pagination-bullet-active {
@@ -122,14 +115,15 @@ const css = `
 
   .stack-carousel .swiper-button-next,
   .stack-carousel .swiper-button-prev {
-    top: 46%;
+    top: 44%;
+    display: none;
     width: 44px;
     height: 44px;
     border-radius: 9999px;
     background-color: var(--surface-2);
     border: 1px solid var(--line);
     color: var(--gold);
-    transition: background-color 0.2s ease, border-color 0.2s ease;
+    transition: border-color 0.2s ease;
   }
 
   .stack-carousel .swiper-button-next:hover,
@@ -138,20 +132,17 @@ const css = `
   }
 
   .stack-carousel .swiper-button-prev {
-    left: 4px;
+    left: 0;
   }
 
   .stack-carousel .swiper-button-next {
-    right: 4px;
+    right: 0;
   }
 
   @media (min-width: 768px) {
+    .stack-carousel .swiper-button-next,
     .stack-carousel .swiper-button-prev {
-      left: 24px;
-    }
-
-    .stack-carousel .swiper-button-next {
-      right: 24px;
+      display: flex;
     }
   }
 `;
@@ -173,21 +164,16 @@ export default function Stack() {
         </Reveal>
 
         <Reveal delay={120}>
-          <motion.div
-            initial={{ opacity: 0, translateY: 20 }}
-            animate={{ opacity: 1, translateY: 0 }}
-            transition={{ duration: 0.3, delay: 0.2 }}
-            className="relative mx-auto mt-14 w-full max-w-5xl px-2 sm:px-8"
-          >
+          <div className="relative mx-auto mt-12 w-full max-w-5xl px-10 sm:px-16">
             <style>{css}</style>
 
             <Swiper
-              spaceBetween={0}
+              spaceBetween={28}
               autoplay={
                 reduced
                   ? false
                   : {
-                      delay: 1500,
+                      delay: 2600,
                       disableOnInteraction: true,
                     }
               }
@@ -197,10 +183,10 @@ export default function Stack() {
               centeredSlides={true}
               loop={true}
               coverflowEffect={{
-                rotate: 40,
+                rotate: 32,
                 stretch: 0,
-                depth: 100,
-                modifier: 1,
+                depth: 110,
+                modifier: 1.15,
                 slideShadows: false,
               }}
               pagination={{ clickable: true }}
@@ -215,19 +201,23 @@ export default function Stack() {
                 <SwiperSlide key={item.name}>
                   <div
                     className={cn(
-                      "flex h-full flex-col rounded-3xl border border-line p-7",
+                      "flex h-full flex-col rounded-3xl border border-line p-6",
                       "bg-[linear-gradient(180deg,#101010_0%,#181818_100%)]",
                       "shadow-[0_16px_48px_rgba(0,0,0,0.4)]",
                     )}
                   >
-                    <p className="font-display text-2xl font-black uppercase tracking-tight text-gold">
+                    <p className="font-display text-xl font-black uppercase tracking-tight text-gold">
                       {item.name}
                     </p>
-                    <p className="mt-1 text-[10px] font-semibold uppercase tracking-widest text-muted">
+                    <p className="mt-1 text-[11px] font-semibold uppercase tracking-widest text-muted">
                       {item.role}
                     </p>
+
                     <div className="my-6 flex-1">{item.visual}</div>
-                    <p className="text-sm leading-relaxed text-muted">{item.body}</p>
+
+                    <p className="border-t border-line pt-4 text-sm leading-relaxed text-muted">
+                      {item.body}
+                    </p>
                   </div>
                 </SwiperSlide>
               ))}
@@ -241,7 +231,7 @@ export default function Stack() {
                 </div>
               </div>
             </Swiper>
-          </motion.div>
+          </div>
         </Reveal>
       </div>
     </section>
