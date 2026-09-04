@@ -5,9 +5,9 @@ import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { useReducedMotion } from "./reveal";
 import { cn } from "@/lib/utils";
 
-const CARD_W = 300;
 const GAP = 20;
-const STEP = CARD_W + GAP;
+const MIN_CARD = 200;
+const MAX_CARD = 300;
 
 type StackItem = {
   name: string;
@@ -41,13 +41,13 @@ export default function StackCarousel({ items }: { items: StackItem[] }) {
   const reduced = useReducedMotion();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [active, setActive] = useState(0);
-  const [containerW, setContainerW] = useState(0);
+  const [width, setWidth] = useState(0);
   const pausedRef = useRef(false);
 
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
-    const measure = () => setContainerW(el.clientWidth);
+    const measure = () => setWidth(el.clientWidth);
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(el);
@@ -57,24 +57,27 @@ export default function StackCarousel({ items }: { items: StackItem[] }) {
   useEffect(() => {
     if (reduced) return;
     const id = window.setInterval(() => {
-      if (!pausedRef.current) setActive((a) => (a + 1) % items.length);
+      if (!pausedRef.current) setActive((a) => (a - 1 + items.length) % items.length);
     }, 2600);
     return () => window.clearInterval(id);
   }, [reduced, items.length]);
 
   const n = items.length;
+  const cardW = width > 0 ? Math.min(MAX_CARD, Math.max(MIN_CARD, (width - 2 * GAP) / 3)) : MAX_CARD;
+  const step = cardW + GAP;
   const track = [...items, ...items, items[0]];
   const k = active + n;
-  const x = containerW / 2 - CARD_W / 2 - k * STEP;
+  const x = -((k - 1) * step);
 
-  const go = (dir: 1 | -1) => setActive((a) => (a + dir + n) % n);
+  const advance = () => setActive((a) => (a - 1 + n) % n);
+  const retreat = () => setActive((a) => (a + 1) % n);
 
   return (
     <div>
       <div className="flex items-center gap-4">
         <button
           type="button"
-          onClick={() => go(-1)}
+          onClick={retreat}
           aria-label="Previous slide"
           className="btn-ring hidden h-11 w-11 shrink-0 items-center justify-center rounded-full text-gold md:inline-flex"
         >
@@ -85,7 +88,7 @@ export default function StackCarousel({ items }: { items: StackItem[] }) {
           ref={containerRef}
           onMouseEnter={() => (pausedRef.current = true)}
           onMouseLeave={() => (pausedRef.current = false)}
-          className="relative flex-1 overflow-hidden rounded-3xl"
+          className="relative mx-auto w-full max-w-[940px] overflow-hidden"
           style={{ height: 460 }}
         >
           <div
@@ -98,27 +101,24 @@ export default function StackCarousel({ items }: { items: StackItem[] }) {
           >
             {track.map((item, i) => {
               const offset = i - k;
-              const isCenter = offset === 0;
-              const isSide = Math.abs(offset) === 1;
-              const sideTransform = isCenter
-                ? undefined
-                : `perspective(1200px) rotateY(${offset < 0 ? 16 : -16}deg) scale(0.9)`;
+              const visible = offset >= -1 && offset <= 1;
               return (
                 <div
                   key={i}
                   className="shrink-0"
                   style={{
-                    width: CARD_W,
+                    width: cardW,
                     marginRight: GAP,
-                    opacity: isSide ? 0.55 : isCenter ? 1 : 0,
-                    transform: sideTransform,
-                    zIndex: isCenter ? 3 : 1,
+                    opacity: offset === 0 ? 1 : offset === -1 || offset === 1 ? 0.6 : 0,
+                    zIndex: offset === 0 ? 3 : 1,
                     transition: "opacity 0.4s ease",
                   }}
                 >
-                  <div style={{ height: 400 }}>
-                    <CardContent item={item} />
-                  </div>
+                  {visible ? (
+                    <div style={{ height: 400 }}>
+                      <CardContent item={item} />
+                    </div>
+                  ) : null}
                 </div>
               );
             })}
@@ -127,7 +127,7 @@ export default function StackCarousel({ items }: { items: StackItem[] }) {
 
         <button
           type="button"
-          onClick={() => go(1)}
+          onClick={advance}
           aria-label="Next slide"
           className="btn-ring hidden h-11 w-11 shrink-0 items-center justify-center rounded-full text-gold md:inline-flex"
         >

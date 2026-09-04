@@ -92,7 +92,7 @@ export default function Stack() {
         </Reveal>
 
         <Reveal delay={120}>
-          <div className="mx-auto mt-12 w-full max-w-3xl">
+          <div className="mx-auto mt-12 w-full max-w-5xl">
             <StackCarousel items={stack} />
           </div>
         </Reveal>
