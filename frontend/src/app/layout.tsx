@@ -1,0 +1,35 @@
+import type { Metadata } from "next";
+import { Fraunces, Inter } from "next/font/google";
+import "./globals.css";
+
+const display = Fraunces({
+  variable: "--font-display",
+  subsets: ["latin"],
+  axes: ["opsz", "SOFT", "WONK"],
+  style: ["normal", "italic"],
+});
+
+const sans = Inter({
+  variable: "--font-sans",
+  subsets: ["latin"],
+});
+
+export const metadata: Metadata = {
+  title: "Fealty: prove what your agent made",
+  description:
+    "Passkey identity and tamper-evident proof of origin for AI agents on Monad. A perceptual fingerprint survives re-encoding, so anyone can verify what an agent actually made.",
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en">
+      <body className={`${display.variable} ${sans.variable} grain antialiased`}>
+        {children}
+      </body>
+    </html>
+  );
+}

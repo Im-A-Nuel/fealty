@@ -1,0 +1,9 @@
+# Markdown documentation is intentionally excluded from the repo
+*.md
+
+# dependencies / build output
+node_modules/
+.next/
+out/
+
+docs
