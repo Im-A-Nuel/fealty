@@ -187,6 +187,8 @@ export default function Stack() {
               slidesPerView="auto"
               centeredSlides={true}
               loop={true}
+              loopAdditionalSlides={3}
+              watchSlidesProgress={true}
               coverflowEffect={{
                 rotate: 22,
                 stretch: 36,
