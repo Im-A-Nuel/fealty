@@ -9,6 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@category-labs/mera": "^0.2.0",
+    "@scure/bip32": "^2.4.0",
+    "@scure/bip39": "^2.4.0",
     "clsx": "^2.1.1",
     "framer-motion": "^13.2.0",
     "lucide-react": "^1.41.0",
@@ -16,7 +19,8 @@
     "react": "^18",
     "react-dom": "^18",
     "swiper": "^14.2.0",
-    "tailwind-merge": "^3.6.0"
+    "tailwind-merge": "^3.6.0",
+    "viem": "^2.56.3"
   },
   "devDependencies": {
     "@types/node": "^20",

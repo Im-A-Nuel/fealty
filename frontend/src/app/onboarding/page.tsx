@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import ConfirmDialog from "@/components/confirm-dialog";
 import FingerprintSeal from "@/components/fingerprint-seal";
 import { useReducedMotion } from "@/components/reveal";
 import { useToast } from "@/components/toast";
-import { delay } from "@/lib/demo";
+import { isBackendConnected } from "@/lib/api";
+import { createPasskeySession, registerAgentOnchain, type MeraSession } from "@/lib/mera";
 import { cn } from "@/lib/utils";
 
 type Step = "passkey" | "derive" | "register" | "done";
@@ -17,9 +18,6 @@ const steps: { id: Step; label: string }[] = [
   { id: "derive", label: "Derive" },
   { id: "register", label: "Register" },
 ];
-
-const DEMO_EOA = "0x7a1e…d4f9";
-const DEMO_AGENT_ID = 42;
 
 const stepMotion = {
   initial: { opacity: 0, y: 16 },
@@ -92,32 +90,32 @@ function StepActions({
 export default function OnboardingPage() {
   const reduced = useReducedMotion();
   const toast = useToast();
+  const sessionRef = useRef<MeraSession | null>(null);
+
   const [step, setStep] = useState<Step>("passkey");
   const [busy, setBusy] = useState(false);
-  const [deriving, setDeriving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [eoa, setEoa] = useState<string | null>(null);
+  const [agentId, setAgentId] = useState<number | null>(null);
+  const [txHash, setTxHash] = useState<string | null>(null);
 
   async function createPasskey() {
-    // TODO(FR-01): replace with the Mera SDK call. WebAuthn PRF passkey
-    // creation derives the EOA client-side; no seed phrase, no backend keys.
     setBusy(true);
     setError(null);
     try {
-      await delay(900);
-      setEoa(DEMO_EOA);
+      const session = await createPasskeySession("fealty-agent");
+      sessionRef.current = session;
+      setEoa(session.address);
       setStep("derive");
-      setDeriving(true);
-      await delay(900);
-      setDeriving(false);
       toast({
         variant: "success",
         title: "Passkey created",
         message: "Address derived from your passkey.",
       });
-    } catch {
-      setError("Passkey creation was cancelled or failed. Try again.");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Passkey creation was cancelled or failed.";
+      setError(msg);
       toast({ variant: "error", title: "Passkey creation failed", message: "Try again." });
     } finally {
       setBusy(false);
@@ -125,23 +123,43 @@ export default function OnboardingPage() {
   }
 
   async function registerIdentity() {
-    // TODO(FR-01): sign and submit the AgentIdentityRegistry.register() tx via
-    // Mera, then POST /agents/register with the tx hash.
+    if (!sessionRef.current) return;
     setBusy(true);
     setError(null);
     try {
-      await delay(1100);
+      const hash = await registerAgentOnchain(sessionRef.current);
+      setTxHash(hash);
+
+      // Kalau backend konek, POST tx hash biar backend baca agentId dari event log
+      if (isBackendConnected()) {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/agents/register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            eoa_address: sessionRef.current.address,
+            tx_hash: hash,
+          }),
+        });
+        if (res.ok) {
+          const data = await res.json() as { agent_id_onchain: number };
+          setAgentId(data.agent_id_onchain);
+        }
+      }
+
       setStep("done");
       toast({
         variant: "success",
         title: "Identity registered",
-        message: `Agent #${DEMO_AGENT_ID} is now on Monad testnet.`,
+        message: "Your agent is now on Monad testnet.",
       });
-    } catch {
-      setError("Registration failed. The transaction did not confirm.");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Registration failed.";
+      setError(msg);
       toast({ variant: "error", title: "Registration failed", message: "Try again." });
     } finally {
       setBusy(false);
+      sessionRef.current?.end();
+      sessionRef.current = null;
     }
   }
 
@@ -152,10 +170,13 @@ export default function OnboardingPage() {
   }
 
   function reset() {
+    sessionRef.current?.end();
+    sessionRef.current = null;
     setStep("passkey");
     setEoa(null);
+    setAgentId(null);
+    setTxHash(null);
     setError(null);
-    setDeriving(false);
   }
 
   const stepIndex = step === "done" ? steps.length : steps.findIndex((s) => s.id === step);
@@ -169,12 +190,6 @@ export default function OnboardingPage() {
         A passkey is the key. Fealty turns it into a self-custodial Monad address with Mera.
         No seed phrase, nothing to write down.
       </p>
-
-      <div className="mt-8 flex items-center gap-2 rounded-full border border-gold/30 bg-gold/5 px-4 py-2.5 text-sm text-goldbright">
-        <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-gold" />
-        Demo mode: the passkey service and backend are not connected yet. Values below are
-        labeled placeholders.
-      </div>
 
       <div className="mt-10">
         <div className="flex items-center gap-3" role="list" aria-label="Registration steps">
@@ -266,40 +281,21 @@ export default function OnboardingPage() {
                   time. That is the identity: yours to hold, no seed phrase to guard.
                 </p>
 
-                {deriving ? (
-                  <div
-                    role="status"
-                    className="mt-6 flex items-center gap-3 rounded-xl border border-line bg-surface2 px-4 py-4"
-                  >
-                    <Spinner />
-                    <span className="text-sm text-muted">
-                      Deriving address from your passkey…
-                    </span>
-                  </div>
-                ) : (
-                  <div className="mt-6 rounded-xl border border-line bg-surface2 px-4 py-4">
-                    <div className="flex items-center justify-between gap-4">
-                      <p className="text-[11px] font-medium uppercase tracking-widest text-muted">
-                        EOA address
-                      </p>
-                      <span className="shrink-0 rounded-full border border-gold/30 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-goldbright">
-                        demo
-                      </span>
-                    </div>
-                    <p className="mt-2 font-mono text-sm text-goldbright">{eoa}</p>
-                  </div>
-                )}
+                <div className="mt-6 rounded-xl border border-line bg-surface2 px-4 py-4">
+                  <p className="text-[11px] font-medium uppercase tracking-widest text-muted">
+                    EOA address
+                  </p>
+                  <p className="mt-2 break-all font-mono text-sm text-goldbright">{eoa}</p>
+                </div>
 
                 <StepActions onBack={goBack} backDisabled={busy}>
-                  {deriving ? null : (
-                    <button
-                      type="button"
-                      onClick={() => setStep("register")}
-                      className="btn-sheen inline-flex min-h-11 items-center justify-center rounded-full bg-gold px-7 text-sm font-semibold text-background transition-[box-shadow,transform] duration-200 ease-out hover:bg-goldbright active:scale-95"
-                    >
-                      Continue
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    onClick={() => setStep("register")}
+                    className="btn-sheen inline-flex min-h-11 items-center justify-center rounded-full bg-gold px-7 text-sm font-semibold text-background transition-[box-shadow,transform] duration-200 ease-out hover:bg-goldbright active:scale-95"
+                  >
+                    Continue
+                  </button>
                 </StepActions>
               </div>
             ) : null}
@@ -319,7 +315,7 @@ export default function OnboardingPage() {
                     <p className="text-[11px] font-medium uppercase tracking-widest text-muted">
                       address
                     </p>
-                    <p className="font-mono text-sm text-ink">{eoa}</p>
+                    <p className="truncate font-mono text-sm text-ink">{eoa}</p>
                   </div>
                   <div className="flex items-center justify-between gap-4 rounded-xl border border-line bg-surface2 px-4 py-3">
                     <p className="text-[11px] font-medium uppercase tracking-widest text-muted">
@@ -329,9 +325,9 @@ export default function OnboardingPage() {
                   </div>
                   <div className="flex items-center justify-between gap-4 rounded-xl border border-line bg-surface2 px-4 py-3">
                     <p className="text-[11px] font-medium uppercase tracking-widest text-muted">
-                      agentId
+                      contract
                     </p>
-                    <p className="font-mono text-sm text-goldbright">{DEMO_AGENT_ID}</p>
+                    <p className="truncate font-mono text-xs text-muted">AgentIdentityRegistry</p>
                   </div>
                 </div>
 
@@ -380,26 +376,55 @@ export default function OnboardingPage() {
                   variants={item}
                   className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted"
                 >
-                  Agent <span className="font-mono text-goldbright">#{DEMO_AGENT_ID}</span> is
+                  {agentId !== null ? (
+                    <>Agent <span className="font-mono text-goldbright">#{agentId}</span> is</>
+                  ) : (
+                    <>Your agent is</>
+                  )}{" "}
                   registered on Monad testnet. Content it registers will trace back to this
                   identity.
                 </motion.p>
+
+                {txHash ? (
+                  <motion.div variants={item} className="mt-4 flex justify-center">
+                    <a
+                      href={`https://testnet.monadexplorer.com/tx/${txHash}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs font-medium text-goldbright underline underline-offset-2 hover:opacity-80"
+                    >
+                      View tx on Monad Explorer ↗
+                    </a>
+                  </motion.div>
+                ) : null}
+
                 <motion.div
                   variants={item}
                   className="mt-8 flex flex-wrap items-center justify-center gap-3"
                 >
-                  <Link
-                    href={`/agents/${DEMO_AGENT_ID}/register`}
-                    className="btn-sheen inline-flex min-h-11 items-center justify-center rounded-full bg-gold px-7 text-sm font-semibold text-background transition-[box-shadow,transform] duration-200 ease-out hover:bg-goldbright active:scale-95"
-                  >
-                    Register your first file
-                  </Link>
-                  <Link
-                    href={`/agents/${DEMO_AGENT_ID}`}
-                    className="btn-ring inline-flex min-h-11 items-center justify-center rounded-full px-7 text-sm font-medium text-ink transition-colors hover:text-goldbright"
-                  >
-                    View agent profile
-                  </Link>
+                  {agentId !== null ? (
+                    <>
+                      <Link
+                        href={`/agents/${agentId}/register`}
+                        className="btn-sheen inline-flex min-h-11 items-center justify-center rounded-full bg-gold px-7 text-sm font-semibold text-background transition-[box-shadow,transform] duration-200 ease-out hover:bg-goldbright active:scale-95"
+                      >
+                        Register your first file
+                      </Link>
+                      <Link
+                        href={`/agents/${agentId}`}
+                        className="btn-ring inline-flex min-h-11 items-center justify-center rounded-full px-7 text-sm font-medium text-ink transition-colors hover:text-goldbright"
+                      >
+                        View agent profile
+                      </Link>
+                    </>
+                  ) : (
+                    <Link
+                      href="/agents"
+                      className="btn-sheen inline-flex min-h-11 items-center justify-center rounded-full bg-gold px-7 text-sm font-semibold text-background transition-[box-shadow,transform] duration-200 ease-out hover:bg-goldbright active:scale-95"
+                    >
+                      View all agents
+                    </Link>
+                  )}
                 </motion.div>
                 <motion.div variants={item}>
                   <button
@@ -434,15 +459,11 @@ export default function OnboardingPage() {
         <div className="space-y-3">
           <div className="flex items-center justify-between gap-4 rounded-xl border border-line bg-surface2 px-4 py-3">
             <p className="text-[11px] font-medium uppercase tracking-widest text-muted">address</p>
-            <p className="font-mono text-sm text-ink">{eoa}</p>
+            <p className="truncate font-mono text-sm text-ink">{eoa}</p>
           </div>
           <div className="flex items-center justify-between gap-4 rounded-xl border border-line bg-surface2 px-4 py-3">
             <p className="text-[11px] font-medium uppercase tracking-widest text-muted">network</p>
             <p className="text-sm font-medium text-ink">Monad testnet</p>
-          </div>
-          <div className="flex items-center justify-between gap-4 rounded-xl border border-line bg-surface2 px-4 py-3">
-            <p className="text-[11px] font-medium uppercase tracking-widest text-muted">agentId</p>
-            <p className="font-mono text-sm text-goldbright">{DEMO_AGENT_ID}</p>
           </div>
         </div>
         <p className="mt-4 text-xs leading-relaxed text-muted">

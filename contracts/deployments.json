@@ -1,9 +1,12 @@
 {
   "monad_testnet": {
     "chainId": 10143,
-    "AgentIdentityRegistry": "",
-    "ContentProvenanceRegistry": "",
-    "deployedAt": "",
-    "deployTxHash": ""
+    "AgentIdentityRegistry": "0x18cCE47150CF9ec42e8199e113D45B8a2e6F222C",
+    "ContentProvenanceRegistry": "0x231E3D99C4CC214B4c330C6ab63566f8068b3C94",
+    "deployedAt": "2026-09-05",
+    "deployTxHash": {
+      "AgentIdentityRegistry": "0x94c850fbf72bad2e807df53adc92210f2e7f4b0655118c24132b943ca3e78118",
+      "ContentProvenanceRegistry": "0x8197e25f4016f167fbaf5482bbdca495e4a2c2acd9ecfac19ad94f9b80b13a2d"
+    }
   }
 }
