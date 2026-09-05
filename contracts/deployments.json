@@ -1,0 +1,9 @@
+{
+  "monad_testnet": {
+    "chainId": 10143,
+    "AgentIdentityRegistry": "",
+    "ContentProvenanceRegistry": "",
+    "deployedAt": "",
+    "deployTxHash": ""
+  }
+}
