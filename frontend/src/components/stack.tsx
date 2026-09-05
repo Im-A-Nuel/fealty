@@ -1,7 +1,9 @@
 "use client";
 
+import { useRef } from "react";
 import { motion } from "framer-motion";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import type { Swiper as SwiperInstance } from "swiper";
 import {
   Autoplay,
   EffectCoverflow,
@@ -16,6 +18,7 @@ import "swiper/css";
 
 import PhashGrid from "./phash-grid";
 import { Reveal, useReducedMotion } from "./reveal";
+
 
 const stack = [
   {
@@ -144,6 +147,7 @@ const css = `
 
 export default function Stack() {
   const reduced = useReducedMotion();
+  const swiperRef = useRef<SwiperInstance | null>(null);
 
   return (
     <section id="stack" className="scroll-mt-24 border-t border-line">
@@ -171,6 +175,7 @@ export default function Stack() {
               <button
                 type="button"
                 aria-label="Previous slide"
+                onClick={() => swiperRef.current?.slidePrev()}
                 className="stack-prev after:hidden hidden h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full text-gold sm:inline-flex"
               >
                 <ChevronLeftIcon className="h-5 w-5" />
@@ -202,11 +207,14 @@ export default function Stack() {
                   slideShadows: false,
                 }}
                 pagination={{ clickable: true }}
-              navigation={{
-                nextEl: ".stack-next",
-                prevEl: ".stack-prev",
-              }}
-              className="carousal-fealty min-w-0 flex-1"
+                navigation={{
+                  nextEl: ".stack-next",
+                  prevEl: ".stack-prev",
+                }}
+                onSwiper={(swiper) => {
+                  swiperRef.current = swiper;
+                }}
+                className="carousal-fealty min-w-0 flex-1"
                 modules={[EffectCoverflow, Autoplay, Pagination, Navigation]}
               >
                 {stack.map((item) => (
@@ -230,6 +238,7 @@ export default function Stack() {
               <button
                 type="button"
                 aria-label="Next slide"
+                onClick={() => swiperRef.current?.slideNext()}
                 className="stack-next after:hidden hidden h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full text-gold sm:inline-flex"
               >
                 <ChevronRightIcon className="h-5 w-5" />
