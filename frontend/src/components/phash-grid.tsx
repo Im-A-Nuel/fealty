@@ -14,7 +14,7 @@ export default function PhashGrid({
       cells.push(
         <span
           key={`${row}-${col}`}
-          className="rounded-[1px]"
+          className="aspect-square rounded-[1px]"
           style={{
             backgroundColor: on ? "var(--gold)" : "rgba(154,154,154,0.22)",
             opacity: on ? 0.85 : 1,

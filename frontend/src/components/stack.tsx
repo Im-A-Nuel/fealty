@@ -60,7 +60,7 @@ const stack = [
     role: "Fingerprint",
     body: "A 64-bit perceptual hash per file, computed from the pixels, so it survives re-encoding.",
     visual: (
-      <div className="rounded-xl border border-line bg-surface2 p-4">
+      <div className="w-full rounded-xl border border-line bg-surface2 p-4">
         <p className="text-[11px] font-medium uppercase tracking-widest text-muted">phash · 64 bit</p>
         <PhashGrid seed={4} className="mt-3" />
       </div>
@@ -217,7 +217,7 @@ export default function Stack() {
                       <p className="mt-1 text-[11px] font-semibold uppercase tracking-widest text-muted">
                         {item.role}
                       </p>
-                      <div className="my-6 flex-1">{item.visual}</div>
+                      <div className="my-6 flex min-h-[10rem] items-center">{item.visual}</div>
                       <p className="border-t border-line pt-4 text-sm leading-relaxed text-muted">
                         {item.body}
                       </p>

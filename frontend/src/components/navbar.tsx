@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import BrandMark from "./brand-mark";
 
 const links = [
   { href: "/agents", label: "Agents" },
@@ -45,7 +46,7 @@ export default function Navbar() {
           className="flex items-center gap-2.5 font-display text-xl font-medium tracking-tight text-ink"
           aria-label="Fealty, home"
         >
-          <span aria-hidden="true" className="inline-block h-2.5 w-2.5 rounded-full bg-gold" />
+          <BrandMark className="h-7 w-7 shrink-0" />
           Fealty
         </Link>
 
