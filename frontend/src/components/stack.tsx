@@ -60,9 +60,9 @@ const stack = [
     role: "Fingerprint",
     body: "A 64-bit perceptual hash per file, computed from the pixels, so it survives re-encoding.",
     visual: (
-      <div className="w-full rounded-xl border border-line bg-surface2 p-4">
+      <div className="w-full rounded-xl border border-line bg-surface2 p-3.5">
         <p className="text-[11px] font-medium uppercase tracking-widest text-muted">phash · 64 bit</p>
-        <PhashGrid seed={4} className="mt-3" />
+        <PhashGrid seed={4} className="mx-auto mt-3 max-w-[172px]" />
       </div>
     ),
   },
@@ -96,17 +96,17 @@ function SpecRow({ label, value }: { label: string; value: string }) {
 const css = `
   .carousal-fealty {
     width: 100%;
-    max-width: 932px;
-    height: 460px;
-    padding-bottom: 46px !important;
+    max-width: 720px;
+    height: 482px;
+    padding-bottom: 44px !important;
     overflow: hidden;
   }
 
   .carousal-fealty .swiper-slide {
     background-position: center;
     background-size: cover;
-    width: 300px;
-    height: 400px;
+    width: 312px;
+    height: 430px;
     z-index: 1;
   }
 
@@ -187,9 +187,9 @@ export default function Stack() {
                 loopAdditionalSlides={2}
                 watchSlidesProgress={true}
                 coverflowEffect={{
-                  rotate: 30,
-                  stretch: 0,
-                  depth: 100,
+                  rotate: 18,
+                  stretch: -8,
+                  depth: 82,
                   modifier: 1,
                   slideShadows: false,
                 }}
@@ -210,14 +210,14 @@ export default function Stack() {
               >
                 {stack.map((item) => (
                   <SwiperSlide key={item.name}>
-                    <div className="flex h-full flex-col rounded-3xl border border-line p-6 bg-[linear-gradient(180deg,#101010_0%,#181818_100%)] shadow-[0_16px_48px_rgba(0,0,0,0.4)]">
-                      <p className="font-display text-xl font-black uppercase tracking-tight text-gold">
+                    <div className="flex h-full flex-col rounded-3xl border border-line bg-[linear-gradient(180deg,#101010_0%,#181818_100%)] p-5 shadow-[0_16px_48px_rgba(0,0,0,0.4)]">
+                      <p className="font-display text-lg font-black uppercase tracking-tight text-gold">
                         {item.name}
                       </p>
                       <p className="mt-1 text-[11px] font-semibold uppercase tracking-widest text-muted">
                         {item.role}
                       </p>
-                      <div className="my-6 flex min-h-[10rem] items-center">{item.visual}</div>
+                      <div className="my-4 flex min-h-[10rem] flex-1 items-center">{item.visual}</div>
                       <p className="border-t border-line pt-4 text-sm leading-relaxed text-muted">
                         {item.body}
                       </p>
