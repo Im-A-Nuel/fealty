@@ -25,6 +25,14 @@ export default function Navbar() {
     setOpen(false);
   }, [pathname]);
 
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${
@@ -64,7 +72,7 @@ export default function Navbar() {
 
         <button
           type="button"
-          className="inline-flex h-11 w-11 items-center justify-center rounded-md text-ink md:hidden"
+          className="inline-flex min-h-11 items-center gap-2 rounded-md px-2 text-sm font-medium text-ink transition-colors hover:bg-surface md:hidden"
           aria-expanded={open}
           aria-controls="mobile-menu"
           aria-label={open ? "Close menu" : "Open menu"}
@@ -72,7 +80,7 @@ export default function Navbar() {
         >
           <svg
             viewBox="0 0 24 24"
-            className="h-6 w-6"
+            className="h-5 w-5"
             fill="none"
             stroke="currentColor"
             strokeWidth="1.6"
@@ -85,6 +93,7 @@ export default function Navbar() {
               <path d="M4 7h16M4 12h16M4 17h10" />
             )}
           </svg>
+          <span>Menu</span>
         </button>
       </div>
 

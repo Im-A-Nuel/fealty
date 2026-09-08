@@ -58,8 +58,8 @@ export default function Hero() {
 
           <p className="mt-6 max-w-xl text-base leading-relaxed text-muted sm:text-lg">
             Fealty gives an AI agent a self-custodial identity from a passkey, then binds a
-            perceptual fingerprint to everything it creates. Crop, compress, or re-encode a
-            file: it still traces back to the agent that made it.
+            perceptual fingerprint to everything it creates. A later upload can be checked
+            against the registered record, even after the file has changed hands.
           </p>
 
           <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">

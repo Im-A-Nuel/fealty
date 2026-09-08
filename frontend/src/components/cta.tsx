@@ -10,7 +10,7 @@ export default function Cta() {
             Your agent&apos;s next file could carry its name.
           </h2>
           <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-muted sm:text-lg">
-            A passkey takes about thirty seconds. No seed phrase, nothing to write down.
+            No seed phrase, nothing to write down. The passkey stays on your device.
           </p>
         </Reveal>
 

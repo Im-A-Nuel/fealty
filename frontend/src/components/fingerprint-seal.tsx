@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useId, useRef, useState } from "react";
 import { useReducedMotion } from "./reveal";
 
 type Point = { x: number; y: number };
@@ -48,6 +48,10 @@ function serration(cx: number, cy: number, r1: number, r2: number, ticks: number
 
 export default function FingerprintSeal({ className = "" }: { className?: string }) {
   const reduced = useReducedMotion();
+  const gradientId = useId().replace(/:/g, "");
+  const discId = `seal-disc-${gradientId}`;
+  const ridgeId = `seal-ridge-${gradientId}`;
+  const sheenId = `seal-sheen-${gradientId}`;
   const frame = useRef<HTMLDivElement | null>(null);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
 
@@ -90,7 +94,7 @@ export default function FingerprintSeal({ className = "" }: { className?: string
           transition: "transform 0.35s ease-out",
         }}
       >
-        <div className="animate-seal-float will-change-transform">
+        <div className="will-change-transform">
           <svg
           viewBox="0 0 320 320"
           className="block h-auto w-full"
@@ -98,17 +102,17 @@ export default function FingerprintSeal({ className = "" }: { className?: string
           aria-label="A gold wax seal embossed with a fingerprint"
         >
           <defs>
-            <radialGradient id="sealDisc" cx="42%" cy="36%" r="75%">
+            <radialGradient id={discId} cx="42%" cy="36%" r="75%">
               <stop offset="0%" stopColor="#2a2418" />
               <stop offset="55%" stopColor="#1a150c" />
               <stop offset="100%" stopColor="#0e0b06" />
             </radialGradient>
-            <linearGradient id="ridgeGold" x1="0" y1="0" x2="1" y2="1">
+            <linearGradient id={ridgeId} x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stopColor="#E6C34F" />
               <stop offset="55%" stopColor="#C9A227" />
               <stop offset="100%" stopColor="#8A6D1C" />
             </linearGradient>
-            <radialGradient id="sealSheen" cx="38%" cy="30%" r="60%">
+            <radialGradient id={sheenId} cx="38%" cy="30%" r="60%">
               <stop offset="0%" stopColor="#ffffff" stopOpacity="0.14" />
               <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
             </radialGradient>
@@ -116,13 +120,13 @@ export default function FingerprintSeal({ className = "" }: { className?: string
 
           <ellipse cx="160" cy="188" rx="96" ry="14" fill="#000000" opacity="0.35" />
 
-          <circle cx={cx} cy={cy} r="148" fill="url(#sealDisc)" />
+          <circle cx={cx} cy={cy} r="148" fill={`url(#${discId})`} />
 
           {serration(cx, cy, 138, 148, 64).map((d, i) => (
-            <path key={`serr-${i}`} d={d} stroke="url(#ridgeGold)" strokeWidth="1.6" />
+            <path key={`serr-${i}`} d={d} stroke={`url(#${ridgeId})`} strokeWidth="1.6" />
           ))}
 
-          <circle cx={cx} cy={cy} r="136" fill="none" stroke="url(#ridgeGold)" strokeWidth="2.4" />
+          <circle cx={cx} cy={cy} r="136" fill="none" stroke={`url(#${ridgeId})`} strokeWidth="2.4" />
           <circle cx={cx} cy={cy} r="131" fill="none" stroke="#8A6D1C" strokeWidth="1" />
 
           {ridgeArcs(cx, cy, rings).map((d, i) => (
@@ -130,16 +134,16 @@ export default function FingerprintSeal({ className = "" }: { className?: string
               key={`ridge-${i}`}
               d={d}
               fill="none"
-              stroke="url(#ridgeGold)"
+              stroke={`url(#${ridgeId})`}
               strokeWidth="2.7"
               strokeLinecap="round"
             />
           ))}
 
-          <circle cx={cx} cy={cy} r="7" fill="none" stroke="url(#ridgeGold)" strokeWidth="2.6" />
-          <circle cx={cx} cy={cy} r="3" fill="url(#ridgeGold)" />
+          <circle cx={cx} cy={cy} r="7" fill="none" stroke={`url(#${ridgeId})`} strokeWidth="2.6" />
+          <circle cx={cx} cy={cy} r="3" fill={`url(#${ridgeId})`} />
 
-          <circle cx={cx} cy={cy} r="148" fill="url(#sealSheen)" />
+          <circle cx={cx} cy={cy} r="148" fill={`url(#${sheenId})`} />
           </svg>
         </div>
       </div>

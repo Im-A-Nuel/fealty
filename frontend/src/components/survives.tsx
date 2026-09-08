@@ -43,10 +43,10 @@ function Artifact({ variant, seed }: { variant: "blur" | "small" | "crop" | "shi
 }
 
 const attacks = [
-  { name: "Compression", note: "JPEG re-encoded, quality 60", variant: "blur" as const, seed: 1 },
-  { name: "Resize", note: "shrunk to 50%", variant: "small" as const, seed: 2 },
-  { name: "Crop", note: "90% of the frame kept", variant: "crop" as const, seed: 3 },
-  { name: "Re-encode", note: "converted, re-toned", variant: "shift" as const, seed: 4 },
+  { name: "Compression", note: "JPEG re-encoding", variant: "blur" as const, seed: 1 },
+  { name: "Resize", note: "reduced dimensions", variant: "small" as const, seed: 2 },
+  { name: "Crop", note: "retained image area", variant: "crop" as const, seed: 3 },
+  { name: "Re-encode", note: "a converted file copy", variant: "shift" as const, seed: 4 },
 ];
 
 export default function Survives() {
@@ -62,8 +62,8 @@ export default function Survives() {
           </h2>
           <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-muted sm:text-lg">
             A screenshot strips C2PA tags. A re-upload strips EXIF. Provenance that lives
-            inside a file is gone the moment the file is copied. A perceptual hash is
-            computed from the pixels, so it survives all of it.
+            inside a file is gone the moment the file is copied. Fealty fingerprints pixel
+            structure instead of attached metadata; the demo includes a re-encoding check.
           </p>
         </Reveal>
 
@@ -80,7 +80,7 @@ export default function Survives() {
                     <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                       <path d="M20 6L9 17l-5-5" />
                     </svg>
-                    match
+                    test case
                   </span>
                 </div>
                 <p className="mt-1.5 text-xs text-muted">{attack.note}</p>

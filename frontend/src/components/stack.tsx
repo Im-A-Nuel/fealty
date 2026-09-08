@@ -1,12 +1,12 @@
 "use client";
 
 import { useRef } from "react";
-import { motion } from "framer-motion";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import type { Swiper as SwiperInstance } from "swiper";
 import {
-  Autoplay,
+  A11y,
   EffectCoverflow,
+  Keyboard,
   Navigation,
   Pagination,
 } from "swiper/modules";
@@ -17,7 +17,7 @@ import "swiper/css/navigation";
 import "swiper/css";
 
 import PhashGrid from "./phash-grid";
-import { Reveal, useReducedMotion } from "./reveal";
+import { Reveal } from "./reveal";
 
 
 const stack = [
@@ -146,7 +146,6 @@ const css = `
 `;
 
 export default function Stack() {
-  const reduced = useReducedMotion();
   const swiperRef = useRef<SwiperInstance | null>(null);
 
   return (
@@ -163,12 +162,7 @@ export default function Stack() {
         </Reveal>
 
         <Reveal delay={120}>
-          <motion.div
-            initial={{ opacity: 0, translateY: 20 }}
-            animate={{ opacity: 1, translateY: 0 }}
-            transition={{ duration: 0.3, delay: 0.2 }}
-            className="relative mx-auto mt-12 w-full max-w-[1080px] px-2 sm:px-6"
-          >
+          <div className="relative mx-auto mt-12 w-full max-w-[1080px] px-2 sm:px-6">
             <style>{css}</style>
 
             <div className="stack-nav flex items-center gap-3 sm:gap-5">
@@ -183,17 +177,10 @@ export default function Stack() {
 
               <Swiper
                 spaceBetween={16}
-                autoplay={
-                  reduced
-                    ? false
-                    : {
-                        delay: 2600,
-                        disableOnInteraction: true,
-                        reverseDirection: true,
-                      }
-                }
+                autoplay={false}
                 effect="coverflow"
                 grabCursor={true}
+                keyboard={{ enabled: true, onlyInViewport: true }}
                 slidesPerView="auto"
                 centeredSlides={true}
                 loop={true}
@@ -207,6 +194,10 @@ export default function Stack() {
                   slideShadows: false,
                 }}
                 pagination={{ clickable: true }}
+                a11y={{
+                  containerMessage: "Technology stack carousel. Use the arrow keys or pagination controls to browse.",
+                  slideLabelMessage: "{{index}} of {{slidesLength}}",
+                }}
                 navigation={{
                   nextEl: ".stack-next",
                   prevEl: ".stack-prev",
@@ -215,7 +206,7 @@ export default function Stack() {
                   swiperRef.current = swiper;
                 }}
                 className="carousal-fealty min-w-0 flex-1"
-                modules={[EffectCoverflow, Autoplay, Pagination, Navigation]}
+                modules={[A11y, EffectCoverflow, Keyboard, Pagination, Navigation]}
               >
                 {stack.map((item) => (
                   <SwiperSlide key={item.name}>
@@ -244,7 +235,7 @@ export default function Stack() {
                 <ChevronRightIcon className="h-5 w-5" />
               </button>
             </div>
-          </motion.div>
+          </div>
         </Reveal>
       </div>
     </section>

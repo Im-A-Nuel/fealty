@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import FingerprintSeal from "./fingerprint-seal";
 import PhashGrid from "./phash-grid";
 import { useReducedMotion } from "./reveal";
@@ -14,20 +14,32 @@ type Card = {
 export default function Scatter() {
   const reduced = useReducedMotion();
   const frame = useRef<HTMLDivElement | null>(null);
+  const animationFrame = useRef<number | null>(null);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
+
+  useEffect(() => () => {
+    if (animationFrame.current !== null) cancelAnimationFrame(animationFrame.current);
+  }, []);
 
   const onMove = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
       if (reduced || e.pointerType !== "mouse") return;
       const rect = frame.current?.getBoundingClientRect();
       if (!rect) return;
-      setOffset({
+      const nextOffset = {
         x: (e.clientX - rect.left) / rect.width - 0.5,
         y: (e.clientY - rect.top) / rect.height - 0.5,
-      });
+      };
+      if (animationFrame.current !== null) cancelAnimationFrame(animationFrame.current);
+      animationFrame.current = requestAnimationFrame(() => setOffset(nextOffset));
     },
     [reduced],
   );
+
+  const onLeave = useCallback(() => {
+    if (animationFrame.current !== null) cancelAnimationFrame(animationFrame.current);
+    setOffset({ x: 0, y: 0 });
+  }, []);
 
   const cards: Card[] = [
     {
@@ -81,6 +93,7 @@ export default function Scatter() {
     <div
       ref={frame}
       onPointerMove={onMove}
+      onPointerLeave={onLeave}
       className="relative mx-auto flex h-[440px] w-full max-w-[520px] items-center justify-center sm:h-[520px]"
       aria-hidden="true"
     >
